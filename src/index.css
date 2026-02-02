@@ -1,0 +1,285 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Private Consultancy Design System
+   Premium, modern, elegant UI with gold accent
+   All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Light Theme - Clean, Premium */
+    --background: 0 0% 100%;
+    --background-subtle: 0 0% 98%;
+    --foreground: 0 0% 9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+
+    --primary: 43 74% 49%;
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 43 74% 49%;
+
+    --radius: 0.625rem;
+
+    /* Brand Colors - Gold Identity */
+    --gold: 43 74% 49%;
+    --gold-light: 45 80% 58%;
+    --gold-dark: 38 80% 42%;
+    --gold-muted: 43 30% 70%;
+    
+    /* Feedback Colors */
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+    --info: 217 91% 60%;
+    --error: 0 84% 60%;
+
+    /* Chart Colors */
+    --chart-1: 217 91% 60%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 262 83% 58%;
+    --chart-4: 32 95% 55%;
+    --chart-5: 340 82% 52%;
+
+    /* Shadows - Light Mode */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+    --shadow-gold: 0 8px 30px -8px hsl(43 74% 49% / 0.25);
+    --shadow-gold-hover: 0 12px 40px -8px hsl(43 74% 49% / 0.35);
+
+    /* Sidebar - Light */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 9%;
+    --sidebar-primary: 43 74% 49%;
+    --sidebar-primary-foreground: 0 0% 9%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 92%;
+    --sidebar-ring: 43 74% 49%;
+    --sidebar-hover: 43 40% 95%;
+  }
+
+  .dark {
+    /* Dark Theme - Premium Black & Gold */
+    --background: 0 0% 5%;
+    --background-subtle: 0 0% 7%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 43 74% 49%;
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 43 74% 49%;
+
+    /* Brand Colors - Gold for Dark */
+    --gold: 43 74% 49%;
+    --gold-light: 45 80% 58%;
+    --gold-dark: 40 85% 45%;
+    --gold-muted: 43 40% 35%;
+    
+    /* Feedback Colors */
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+    --info: 217 91% 60%;
+    --error: 0 84% 60%;
+
+    /* Chart Colors */
+    --chart-1: 217 91% 60%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 262 83% 58%;
+    --chart-4: 32 95% 55%;
+    --chart-5: 340 82% 52%;
+
+    /* Shadows - Dark Mode */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+    --shadow-gold: 0 8px 30px -8px hsl(43 74% 49% / 0.3);
+    --shadow-gold-hover: 0 12px 40px -8px hsl(43 74% 49% / 0.45);
+
+    /* Sidebar - Dark */
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 43 74% 49%;
+    --sidebar-primary-foreground: 0 0% 9%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 43 74% 49%;
+    --sidebar-hover: 43 74% 49%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  /* Premium Card Styles */
+  .premium-card {
+    @apply relative overflow-hidden rounded-xl border bg-card transition-all duration-300;
+  }
+  
+  .premium-card::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300 pointer-events-none;
+    background: linear-gradient(135deg, hsl(var(--gold) / 0.05), transparent);
+  }
+  
+  .premium-card:hover::before {
+    @apply opacity-100;
+  }
+  
+  .premium-card:hover {
+    @apply -translate-y-1;
+    box-shadow: var(--shadow-gold-hover);
+  }
+
+  /* Table Row Hover */
+  .table-row-premium {
+    @apply transition-colors duration-200;
+  }
+  
+  .dark .table-row-premium:hover {
+    background-color: hsl(var(--gold) / 0.05);
+  }
+  
+  .table-row-premium:hover {
+    background-color: hsl(var(--muted) / 0.5);
+  }
+
+  /* Sidebar Active Indicator */
+  .sidebar-active-indicator {
+    @apply absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-gold rounded-r-full;
+  }
+
+  /* Premium Button */
+  .btn-premium {
+    @apply relative overflow-hidden transition-all duration-300;
+  }
+  
+  .btn-premium::after {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+    background: linear-gradient(135deg, transparent, hsl(0 0% 100% / 0.1));
+  }
+  
+  .btn-premium:hover::after {
+    @apply opacity-100;
+  }
+
+  /* Metric Number Animation */
+  .metric-number {
+    @apply text-4xl font-bold tracking-tight;
+    animation: slideUp 0.5s ease-out;
+  }
+
+  /* Background Gradients */
+  .bg-gradient-radial-light {
+    background: 
+      radial-gradient(ellipse at top left, hsl(var(--muted) / 0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom right, hsl(var(--muted) / 0.2) 0%, transparent 50%),
+      hsl(var(--background));
+  }
+
+  .dark .bg-gradient-radial-dark {
+    background: 
+      radial-gradient(ellipse at top left, hsl(var(--gold) / 0.02) 0%, transparent 40%),
+      radial-gradient(ellipse at bottom right, hsl(var(--gold) / 0.015) 0%, transparent 40%),
+      hsl(var(--background));
+  }
+}
+
+@layer utilities {
+  /* Smooth Blur Modal */
+  .modal-blur {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Icon Scale on Click */
+  .icon-click-scale:active {
+    transform: scale(1.05);
+  }
+
+  /* Gold Border Glow */
+  .border-gold-glow {
+    border-color: hsl(var(--gold) / 0.3);
+  }
+  
+  .dark .border-gold-glow {
+    border-color: hsl(var(--gold) / 0.15);
+  }
+
+  /* Focus Gold Ring */
+  .focus-gold:focus-visible {
+    @apply outline-none ring-2 ring-offset-2;
+    ring-color: hsl(var(--gold));
+    ring-offset-color: hsl(var(--background));
+  }
+}
+
+/* Keyframes */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

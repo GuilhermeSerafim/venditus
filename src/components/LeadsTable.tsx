@@ -1,0 +1,143 @@
+import { useState, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Edit, Trash2, Eye } from "lucide-react";
+import { EditLeadDialog } from "./EditLeadDialog";
+import { LeadDetailsDialog } from "./LeadDetailsDialog";
+import { SortableTableHead } from "./SortableTableHead";
+import { useRoles } from "@/hooks/useRoles";
+import { useToast } from "@/hooks/use-toast";
+
+export const LeadsTable = () => {
+  const [editingLead, setEditingLead] = useState<any>(null);
+  const [viewingLead, setViewingLead] = useState<any>(null);
+  const [sort, setSort] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const { canEditLeads } = useRoles();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: leads, isLoading } = useQuery({
+    queryKey: ["leads"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("leads").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("leads").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      toast({ title: "Lead excluído com sucesso" });
+    },
+    onError: () => {
+      toast({ title: "Erro ao excluir lead", variant: "destructive" });
+    },
+  });
+
+  const handleSort = (key: string) => {
+    setSort((current) => {
+      if (current?.key === key) {
+        return { key, direction: current.direction === "asc" ? "desc" : "asc" };
+      }
+      return { key, direction: "asc" };
+    });
+  };
+
+  const sortedLeads = useMemo(() => {
+    if (!leads || !sort) return leads;
+
+    return [...leads].sort((a, b) => {
+      let aVal = a[sort.key];
+      let bVal = b[sort.key];
+
+      if (aVal < bVal) return sort.direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return sort.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [leads, sort]);
+
+  if (isLoading) {
+    return <div className="text-center py-8">Carregando...</div>;
+  }
+
+  return (
+    <>
+      <div className="rounded-lg border border-border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent border-border">
+              <SortableTableHead label="Nome" sortKey="name" currentSort={sort} onSort={handleSort} />
+              <SortableTableHead label="Email" sortKey="email" currentSort={sort} onSort={handleSort} />
+              <SortableTableHead label="Telefone" sortKey="phone" currentSort={sort} onSort={handleSort} />
+              <SortableTableHead label="Origem" sortKey="lead_source" currentSort={sort} onSort={handleSort} />
+              <SortableTableHead label="Ações" sortKey="" currentSort={null} onSort={() => {}} className="text-right" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sortedLeads?.map((lead) => (
+              <TableRow key={lead.id} className="border-border">
+                <TableCell className="font-medium text-foreground">{lead.name}</TableCell>
+                <TableCell className="text-muted-foreground">{lead.email || "-"}</TableCell>
+                <TableCell className="text-muted-foreground">{lead.phone || "-"}</TableCell>
+                <TableCell className="text-muted-foreground">{lead.lead_source || "-"}</TableCell>
+                <TableCell className="text-right space-x-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setViewingLead(lead)}
+                    className="text-gold hover:text-gold hover:bg-gold/10"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  {canEditLeads && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setEditingLead(lead)}
+                        className="text-gold hover:text-gold hover:bg-gold/10"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => deleteMutation.mutate(lead.id)}
+                        className="text-red-500 hover:text-red-500 hover:bg-red-500/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {editingLead && (
+        <EditLeadDialog
+          lead={editingLead}
+          open={!!editingLead}
+          onOpenChange={(open) => !open && setEditingLead(null)}
+        />
+      )}
+
+      {viewingLead && (
+        <LeadDetailsDialog
+          lead={viewingLead}
+          open={!!viewingLead}
+          onOpenChange={(open) => !open && setViewingLead(null)}
+        />
+      )}
+    </>
+  );
+};

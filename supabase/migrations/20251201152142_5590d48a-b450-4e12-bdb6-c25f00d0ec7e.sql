@@ -1,0 +1,1 @@
+ALTER TABLE public.custom_dashboards ENABLE ROW LEVEL SECURITY
