@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# Venditus - Sistema de Gestão
 
 ## Project info
 

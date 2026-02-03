@@ -1,4 +1,4 @@
-# 🚀 Guia Completo: Configurando Novo Supabase
+# 🚀 Guia Completo: Configurando Novo Supabase - Venditus
 
 ## 📋 O que você precisa fazer
 
@@ -7,7 +7,7 @@
 1. Acesse: https://supabase.com/dashboard
 2. Clique em **"New Project"**
 3. Preencha:
-   - **Name**: `huil-educacional` (ou nome de sua preferência)
+   - **Name**: `venditus` (ou nome de sua preferência)
    - **Database Password**: Crie uma senha forte (anote!)
    - **Region**: Escolha a mais próxima (ex: South America - São Paulo)
 4. Clique em **"Create new project"** e aguarde ~2 minutos

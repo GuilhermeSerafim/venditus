@@ -1,8 +1,8 @@
-# 📊 HUIL Private Educacional - Overview do Projeto
+# 📊 Venditus - Overview do Projeto
 
 ## 🎯 Propósito do Sistema
 
-**Sistema Completo de Gestão Executiva e CRM** para consultoria educacional (Private Consultancy). 
+**Sistema Completo de Gestão Executiva e CRM** para consultoria educacional. 
 
 Uma plataforma integrada para gerenciar todo o ciclo de vendas, desde a captação de leads até o fechamento de vendas e acompanhamento financeiro.
 
@@ -617,7 +617,7 @@ Lead → Invited → Confirmed → Attended → Negotiation → Purchased
 
 ## 🎨 Identidade Visual
 
-**Nome**: Private Consultancy - Sistema de Gestão
+**Nome**: Venditus - Sistema de Gestão
 
 **Paleta de Cores**:
 - Gold: `#F2C94C` (principal)
