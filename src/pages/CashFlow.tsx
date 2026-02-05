@@ -41,13 +41,11 @@ const CashFlow = () => {
   });
 
   const { data: expenses } = useQuery({
-    queryKey: ["expenses", currentMonth],
+    queryKey: ["expenses"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("expenses")
         .select("*")
-        .gte("expense_date", `${currentMonth}-01`)
-        .lte("expense_date", `${currentMonth}-31`)
         .order("expense_date", { ascending: false });
       if (error) throw error;
       return data;
@@ -55,13 +53,11 @@ const CashFlow = () => {
   });
 
   const { data: revenues } = useQuery({
-    queryKey: ["revenues", currentMonth],
+    queryKey: ["revenues"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("revenues")
         .select("*")
-        .gte("revenue_date", `${currentMonth}-01`)
-        .lte("revenue_date", `${currentMonth}-31`)
         .order("revenue_date", { ascending: false });
       if (error) throw error;
       return data;
