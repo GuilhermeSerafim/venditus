@@ -182,20 +182,24 @@ Após configurar o Supabase, crie seu primeiro usuário na tela de cadastro. O p
 
 ## 🌐 Deploy
 
-### Deploy no Render.com
+### Deploy no Vercel
 
-1. **Conecte o repositório** no [Render](https://render.com)
-2. **Configure as variáveis de ambiente** no painel do Render
-3. **Build Command:** `npm run build`
-4. **Publish Directory:** `dist`
+1. **Conecte o repositório** no [Vercel](https://vercel.com)
+2. **Configure as variáveis de ambiente:**
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_PUBLISHABLE_KEY`
+3. **Deploy automático** - Vercel detecta Vite automaticamente
+4. **Framework Preset:** Vite
+5. **Build Command:** `npm run build` (detectado automaticamente)
+6. **Output Directory:** `dist` (detectado automaticamente)
 
-**URL de Produção:** [venditus.onrender.com](https://venditus.onrender.com)
+> **Nota:** Ignore o aviso sobre `VITE_SUPABASE_PUBLISHABLE_KEY` - essa chave é pública por design.
 
 ### Deploy Alternativo
 
 O projeto também pode ser deployado em:
-- [Vercel](https://vercel.com/)
 - [Netlify](https://www.netlify.com/)
+- [Render](https://render.com/)
 - [Cloudflare Pages](https://pages.cloudflare.com/)
 
 ## 📁 Estrutura do Projeto
