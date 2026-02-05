@@ -53,7 +53,7 @@ const NavItem = ({ to, icon, label, isCollapsed, isActive }: NavItemProps) => {
 };
 
 export const AppSidebar = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const location = useLocation();
   const { 
     canAccessLeads, 
