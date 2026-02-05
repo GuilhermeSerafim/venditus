@@ -31,12 +31,12 @@ export const ModernHeader = ({}: ModernHeaderProps) => {
           <div className="relative h-10 w-10 rounded-xl bg-gradient-to-br from-gold to-gold-light p-0.5 shadow-md group-hover:shadow-gold transition-all duration-300 overflow-hidden">
             <img 
               src={venditusLogo} 
-              alt="Private Consultancy" 
+              alt="Venditus" 
               className="h-full w-full object-cover rounded-xl"
             />
           </div>
           <div className="flex flex-col">
-            <span className="text-lg font-bold text-foreground tracking-tight">Private Consultancy</span>
+            <span className="text-lg font-bold text-foreground tracking-tight">Venditus</span>
             <span className="text-[10px] text-muted-foreground leading-none">Sistema de Gestão</span>
           </div>
         </Link>

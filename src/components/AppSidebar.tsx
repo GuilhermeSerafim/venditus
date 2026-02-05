@@ -93,14 +93,14 @@ export const AppSidebar = () => {
         <div className="h-9 w-9 rounded-lg overflow-hidden flex-shrink-0 ring-2 ring-gold/20">
           <img 
             src={venditusLogo} 
-            alt="Private Consultancy" 
+            alt="Venditus" 
             className="h-full w-full object-cover"
           />
         </div>
         {!isCollapsed && (
           <div className="flex flex-col overflow-hidden">
             <span className="text-sm font-semibold text-sidebar-foreground truncate">
-              Private Consultancy
+              Venditus
             </span>
             <span className="text-[10px] text-muted-foreground truncate">
               Sistema de Gestão

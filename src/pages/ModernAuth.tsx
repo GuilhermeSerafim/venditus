@@ -107,7 +107,7 @@ const ModernAuth = () => {
                 />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-foreground mb-1">Private Consultancy</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-1">Venditus</h1>
             <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
               <Sparkles className="h-3 w-3 text-gold" />
               Sistema de Gestão

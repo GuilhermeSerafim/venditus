@@ -1,4 +1,4 @@
-# Private Consultancy — Design System & Frontend Spec
+# Venditus — Design System & Frontend Spec
 
 > Documentação técnica completa para desenvolvedores.
 > Versão: 1.0 | Última atualização: Dezembro 2024
