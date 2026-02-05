@@ -28,13 +28,12 @@ const CashFlow = () => {
   const currentMonth = format(new Date(), "yyyy-MM");
 
   const { data: sales } = useQuery({
-    queryKey: ["sales", currentMonth],
+    queryKey: ["sales"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sales")
         .select("*")
-        .gte("sale_date", `${currentMonth}-01`)
-        .lte("sale_date", `${currentMonth}-31`);
+        .order("sale_date", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -105,15 +104,16 @@ const CashFlow = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card className="premium-card group">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Receita Vendida</CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Receita Líquida</CardTitle>
             <div className="p-2 rounded-lg bg-gold/10 text-gold group-hover:scale-110 transition-transform">
               <DollarSign className="h-4 w-4" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="metric-number text-gold">
-              {totalSold.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              {totalNet.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
             </div>
+            <p className="text-xs text-muted-foreground mt-1">Valores já recebidos</p>
           </CardContent>
         </Card>
 
