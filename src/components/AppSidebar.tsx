@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useRoles } from "@/hooks/useRoles";
 import { cn } from "@/lib/utils";
-import privateConsultancyLogo from "@/assets/private-consultancy-logo.png";
+import venditusLogo from "@/assets/venditus-logo.png";
 
 interface NavItemProps {
   to: string;
@@ -92,7 +92,7 @@ export const AppSidebar = () => {
       )}>
         <div className="h-9 w-9 rounded-lg overflow-hidden flex-shrink-0 ring-2 ring-gold/20">
           <img 
-            src={privateConsultancyLogo} 
+            src={venditusLogo} 
             alt="Private Consultancy" 
             className="h-full w-full object-cover"
           />

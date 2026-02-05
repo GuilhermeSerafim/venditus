@@ -5,7 +5,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useRoles } from "@/hooks/useRoles";
-import privateConsultancyLogo from "@/assets/private-consultancy-logo.png";
+import venditusLogo from "@/assets/venditus-logo.png";
 
 interface ModernHeaderProps {
   // Props removed - buttons now in individual pages
@@ -30,7 +30,7 @@ export const ModernHeader = ({}: ModernHeaderProps) => {
         >
           <div className="relative h-10 w-10 rounded-xl bg-gradient-to-br from-gold to-gold-light p-0.5 shadow-md group-hover:shadow-gold transition-all duration-300 overflow-hidden">
             <img 
-              src={privateConsultancyLogo} 
+              src={venditusLogo} 
               alt="Private Consultancy" 
               className="h-full w-full object-cover rounded-xl"
             />

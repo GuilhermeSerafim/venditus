@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Mail, Lock, Sparkles } from "lucide-react";
-import privateConsultancyLogo from "@/assets/private-consultancy-logo.png";
+import venditusLogo from "@/assets/venditus-logo.png";
 
 const ModernAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -101,8 +101,8 @@ const ModernAuth = () => {
             <div className="flex justify-center mb-4">
               <div className="relative p-1 rounded-2xl bg-gradient-to-br from-gold to-gold-light shadow-gold overflow-hidden">
                 <img 
-                  src={privateConsultancyLogo} 
-                  alt="Private Consultancy Logo" 
+                  src={venditusLogo}
+                  alt="Venditus Logo" 
                   className="h-16 w-16 object-cover rounded-2xl"
                 />
               </div>
