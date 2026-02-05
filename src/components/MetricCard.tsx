@@ -27,9 +27,9 @@ export const MetricCard = ({ title, value, icon, trend }: MetricCardProps) => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="metric-number text-gold">{value}</div>
+        <div className="text-3xl md:text-4xl font-bold tracking-tight text-gold">{value}</div>
         {trend && (
-          <p className="text-xs text-muted-foreground mt-2">{trend}</p>
+          <p className="text-xs text-muted-foreground mt-1.5 md:mt-2">{trend}</p>
         )}
       </CardContent>
     </Card>

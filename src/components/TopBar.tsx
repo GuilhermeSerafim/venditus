@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { MobileNav } from "./MobileNav";
 
 export const TopBar = () => {
   const { signOut, user } = useAuth();
@@ -14,8 +15,13 @@ export const TopBar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full h-16 bg-background/80 backdrop-blur-md border-b border-border/50">
-      <div className="h-full flex items-center justify-end px-6 gap-2">
+    <header className="sticky top-0 z-30 w-full h-14 md:h-16 bg-background/80 backdrop-blur-md border-b border-border/50">
+      <div className="h-full flex items-center justify-between px-3 md:px-6 gap-1 md:gap-2">
+        {/* Mobile Navigation */}
+        <MobileNav />
+        
+        {/* Right side actions */}
+        <div className="flex items-center gap-1 md:gap-2">
         {/* Theme Toggle */}
         <Button
           variant="ghost"
@@ -40,7 +46,7 @@ export const TopBar = () => {
         </Button>
 
         {/* Divider */}
-        <div className="h-6 w-px bg-border mx-2" />
+        <div className="hidden md:block h-6 w-px bg-border mx-2" />
 
         {/* User Info */}
         <div className="flex items-center gap-3">
@@ -70,6 +76,7 @@ export const TopBar = () => {
           >
             <LogOut className="h-[18px] w-[18px]" />
           </Button>
+        </div>
         </div>
       </div>
     </header>

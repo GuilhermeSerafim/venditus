@@ -46,9 +46,9 @@ export const Dashboard = () => {
   const netRevenue = sales?.reduce((sum, sale) => sum + (Number(sale.net_value) || 0), 0) || 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Key Metrics */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Total de Contatos"
           value={totalLeads.toString()}
@@ -76,7 +76,7 @@ export const Dashboard = () => {
       </div>
 
       {/* Status Analysis */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
         <ClientStatusChart
           data={{
             newLeads,

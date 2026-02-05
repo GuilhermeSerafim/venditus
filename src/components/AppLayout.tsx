@@ -15,14 +15,14 @@ export const AppLayout = ({ children, title, description, actions }: AppLayoutPr
     <div className="min-h-screen bg-background dark:bg-gradient-radial-dark bg-gradient-radial-light">
       <AppSidebar />
       
-      <div className="pl-[68px] min-h-screen transition-all duration-300">
+      <div className="md:pl-[68px] min-h-screen transition-all duration-300">
         <TopBar />
         
-        <main className="px-6 py-6 animate-fade-in">
+        <main className="px-4 py-4 md:px-6 md:py-6 animate-fade-in">
           {/* Page Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-2xl font-display font-bold text-foreground tracking-tight">
+              <h1 className="text-xl md:text-2xl font-display font-bold text-foreground tracking-tight">
                 {title}
               </h1>
               {description && (
@@ -32,7 +32,7 @@ export const AppLayout = ({ children, title, description, actions }: AppLayoutPr
               )}
             </div>
             {actions && (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 md:gap-3">
                 {actions}
               </div>
             )}
