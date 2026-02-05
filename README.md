@@ -2,7 +2,6 @@
 
 > Sistema completo de gestão para consultoria, com módulos de CRM, vendas, eventos, produtos e fluxo de caixa.
 
-[![Deploy](https://img.shields.io/badge/Deploy-Render.com-46E3B7?style=for-the-badge)](https://venditus.onrender.com)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 ## 📚 Índice
