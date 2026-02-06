@@ -74,12 +74,46 @@ export const EditSaleDialog = ({ sale, open, onOpenChange }: EditSaleDialogProps
 
   const paymentMethod = useWatch({ control: form.control, name: "payment_method" });
   const installmentsCount = useWatch({ control: form.control, name: "installments_count" });
+  const soldValue = useWatch({ control: form.control, name: "sold_value" });
+  const paymentStatus = useWatch({ control: form.control, name: "payment_status" });
 
   useEffect(() => {
     if (sale?.installments_status) {
       setInstallmentsStatus(parseInstallmentsStatus(sale.installments_status));
     }
   }, [sale]);
+
+  useEffect(() => {
+    // Auto-calculate net_value (default same as sold_value)
+    // Only if net_value hasn't been manually edited to something else logic could be complex
+    // For now, we update it if it matches the previous sold value or if it's 0
+    // Simplified: If user types sold_value, update net_value if it's currently 0 or equal to old sold_value?
+    // Let's just default it to sold_value if the user hasn't set it yet or strict sync.
+    // User requested "calculate outstanding from sold and net". Here we imply:
+    // Net Value is usually Sold Value unless there are taxes. We will autoset it to Sold Value.
+    
+    const currentNet = form.getValues("net_value");
+    if (currentNet === "0" || currentNet === soldValue || !isEditing) {
+        form.setValue("net_value", soldValue);
+    }
+    
+    // Auto-calculate outstanding_value
+    let newOutstanding = parseFloat(soldValue) || 0;
+
+    if (paymentStatus === "paid") {
+        newOutstanding = 0;
+    } else if (paymentMethod === "parcelado" && installmentsStatus.length > 0) {
+        const total = parseFloat(soldValue) || 0;
+        const count = parseInt(installmentsCount) || 1;
+        const installmentValue = total / count;
+        const paidCount = installmentsStatus.filter(i => i.paid).length;
+        const paidAmount = paidCount * installmentValue;
+        newOutstanding = Math.max(0, total - paidAmount);
+    }
+
+    form.setValue("outstanding_value", newOutstanding.toFixed(2));
+  }, [soldValue, paymentStatus, installmentsStatus, paymentMethod, installmentsCount, isEditing, form]);
+
 
   useEffect(() => {
     if (paymentMethod === "parcelado") {

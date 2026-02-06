@@ -5,11 +5,24 @@ import { useRoles, AppRole } from "@/hooks/useRoles";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, UserCog } from "lucide-react";
+import { Shield, Trash2, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TopBar } from "@/components/TopBar";
+import { CreateUserDialog } from "@/components/CreateUserDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Profile {
   id: string;
@@ -85,7 +98,28 @@ const UserManagement = () => {
     },
   });
 
-
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const { data, error } = await supabase.functions.invoke("delete-user", {
+        body: { userId },
+      });
+      
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profiles"] });
+      queryClient.invalidateQueries({ queryKey: ["all-user-roles"] });
+      toast({ title: "Usuário excluído com sucesso" });
+    },
+    onError: (error: Error) => {
+        toast({ 
+            title: "Erro ao excluir usuário", 
+            description: error.message,
+            variant: "destructive" 
+        });
+    },
+  });
 
   const getRoleBadge = (roles: AppRole[]) => {
     if (roles.length === 0) return <Badge variant="outline">Sem função</Badge>;
@@ -144,42 +178,11 @@ const UserManagement = () => {
   return (
     <AppLayout 
       title="Gestão de Usuários" 
-      description="Gerencie as permissões dos usuários do sistema"
+      description="Gerencie as permissões e contas dos usuários do sistema"
     >
-      <Card className="mb-6 border-blue-500/50 bg-blue-500/5">
-        <CardContent className="pt-6">
-          <div className="flex gap-4">
-            <div className="flex-shrink-0">
-              <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                <UserCog className="h-5 w-5 text-blue-500" />
-              </div>
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-foreground mb-2">Como Gerenciar Usuários</h3>
-              <div className="text-sm text-muted-foreground space-y-2">
-                <p>
-                  <strong className="text-foreground">Criar Usuário:</strong> Acesse o{" "}
-                  <a 
-                    href="https://supabase.com/dashboard/project/pxgkgiifxjckuezemzzt/auth/users" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline font-medium"
-                  >
-                    Supabase Dashboard → Authentication → Users
-                  </a>{" "}
-                  → Clique em "Add user" → Depois atribua a função aqui abaixo.
-                </p>
-                <p>
-                  <strong className="text-foreground">Deletar Usuário:</strong> No mesmo painel, clique nos 3 pontinhos (⋮) ao lado do usuário e selecione "Delete user".
-                </p>
-                <p>
-                  <strong className="text-foreground">Alterar Função:</strong> Use a tabela abaixo (já funciona!).
-                </p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="mb-6 flex justify-end">
+        <CreateUserDialog />
+      </div>
 
       <Card>
         <CardContent className="p-0">
@@ -190,6 +193,7 @@ const UserManagement = () => {
                 <TableHead>Email</TableHead>
                 <TableHead>Função Atual</TableHead>
                 <TableHead>Alterar Função</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -216,6 +220,37 @@ const UserManagement = () => {
                       </SelectContent>
                     </Select>
                   </TableCell>
+                  <TableCell className="text-right">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Esta ação não pode ser desfeita. Isso excluirá permanentemente o usuário 
+                            <strong> {user.email} </strong> e removerá seus dados de acesso.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-red-500 text-white hover:bg-red-600"
+                            onClick={() => deleteUserMutation.mutate(user.user_id)}
+                          >
+                            {deleteUserMutation.isPending ? "Excluindo..." : "Excluir"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -223,7 +258,7 @@ const UserManagement = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="mt-6">
         <CardHeader>
           <CardTitle className="font-display">Permissões por Função</CardTitle>
         </CardHeader>
