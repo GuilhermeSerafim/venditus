@@ -45,6 +45,7 @@ const ModernAuth = () => {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
+    const orgName = formData.get("orgName") as string;
 
     if (password !== confirmPassword) {
       toast({
@@ -66,7 +67,7 @@ const ModernAuth = () => {
       return;
     }
 
-    const { error } = await signUp(email, password);
+    const { error } = await signUp(email, password, orgName);
 
     if (error) {
       toast({
@@ -190,6 +191,20 @@ const ModernAuth = () => {
                       name="email"
                       type="email"
                       placeholder="seu@email.com"
+                      required
+                      className="pl-10 h-11 bg-background border-border rounded-xl"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-org" className="text-sm font-medium">Nome da Empresa</Label>
+                  <div className="relative">
+                    <Sparkles className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signup-org"
+                      name="orgName"
+                      type="text"
+                      placeholder="Sua Empresa"
                       required
                       className="pl-10 h-11 bg-background border-border rounded-xl"
                     />

@@ -9,6 +9,7 @@ import {
   Package, 
   FileText, 
   UserCog,
+  Settings,
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
@@ -74,6 +75,7 @@ export const AppSidebar = () => {
     { to: "/produtos", icon: <Package className="h-5 w-5" />, label: "Produtos", show: canAccessProducts },
     { to: "/exportar", icon: <FileText className="h-5 w-5" />, label: "Exportar", show: canAccessExport },
     { to: "/usuarios", icon: <UserCog className="h-5 w-5" />, label: "Usuários", show: canAccessUserManagement },
+    { to: "/configuracoes", icon: <Settings className="h-5 w-5" />, label: "Configurações", show: canAccessUserManagement }, // Admin only usually
   ];
 
   return (

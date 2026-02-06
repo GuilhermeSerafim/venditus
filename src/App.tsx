@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import Index from "./pages/Index";
 import ModernAuth from "./pages/ModernAuth";
 import CashFlow from "./pages/CashFlow";
@@ -13,6 +14,7 @@ import Events from "./pages/Events";
 import Products from "./pages/Products";
 import Export from "./pages/Export";
 import UserManagement from "./pages/UserManagement";
+import OrganizationSettings from "./pages/OrganizationSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -66,7 +68,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
+          <ThemeProvider>
+            <Routes>
             <Route
               path="/"
               element={
@@ -132,6 +135,14 @@ const App = () => (
               }
             />
             <Route
+              path="/configuracoes"
+              element={
+                <ProtectedRoute>
+                  <OrganizationSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/auth"
               element={
                 <PublicRoute>
@@ -142,6 +153,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </ThemeProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
