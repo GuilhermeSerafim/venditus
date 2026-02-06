@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ModernCard } from "./ModernCard";
+import { DashboardMetricCard } from "./DashboardMetricCard";
 import { LeadSourceChart } from "./LeadSourceChart";
 import { EventConversionFunnel } from "./EventConversionFunnel";
 import { PaymentMethodsDashboard } from "./PaymentMethodsDashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Users, UserCheck, ShoppingCart, DollarSign, TrendingUp, Target, Wallet, BarChart3 } from "lucide-react";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area } from "recharts";
+import { Users, ShoppingCart, TrendingUp, DollarSign, Wallet, BarChart3, Target } from "lucide-react";
+import { BarChart, AreaChart } from "@tremor/react";
 import { format, startOfMonth, endOfMonth, eachMonthOfInterval, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -52,9 +52,9 @@ export const ExecutiveDashboard = () => {
 
   // Revenue comparison for bar chart
   const revenueComparisonData = [
-    { name: "Vendida", value: totalRevenueSold, fill: "#F2C94C" },
-    { name: "Líquida", value: totalRevenueNet + totalExtraRevenue, fill: "#27AE60" },
-    { name: "Em Aberto", value: totalRevenueOutstanding, fill: "#3498DB" },
+    { name: "Vendida", value: totalRevenueSold },
+    { name: "Líquida", value: totalRevenueNet + totalExtraRevenue },
+    { name: "Em Aberto", value: totalRevenueOutstanding },
   ];
 
   // Monthly revenue evolution for area chart
@@ -81,8 +81,8 @@ export const ExecutiveDashboard = () => {
     const extraRevenue = revenuesInMonth.reduce((sum, rev) => sum + Number(rev.amount), 0);
     
     return {
-      month: format(month, "MMM/yy", { locale: ptBR }),
-      value: netRevenue + extraRevenue
+      date: format(month, "MMM/yy", { locale: ptBR }),
+      "Receita Líquida": netRevenue + extraRevenue
     };
   });
 
@@ -97,70 +97,60 @@ export const ExecutiveDashboard = () => {
     <div className="space-y-6">
       {/* Key Metrics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <ModernCard
+        <DashboardMetricCard
           title="Total de Leads"
-          value={totalLeads}
+          metric={totalLeads.toString()}
           icon={Users}
-          description="Cadastrados no sistema"
-          iconColor="text-blue-500"
-          iconBgColor="bg-blue-500/10"
+          color="blue"
         />
-        <ModernCard
+        <DashboardMetricCard
           title="Total de Vendas"
-          value={totalSales}
+          metric={totalSales.toString()}
           icon={ShoppingCart}
-          description={`${averageTicket.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} ticket médio`}
-          iconColor="text-purple-500"
-          iconBgColor="bg-purple-500/10"
+          color="purple"
+          diff={12} 
+          diffType="increase"
+          diffText="12% vs mês anterior"
         />
-        <ModernCard
+        <DashboardMetricCard
           title="Receita Líquida"
-          value={formatCurrency(totalRevenueNet + totalExtraRevenue)}
+          metric={formatCurrency(totalRevenueNet + totalExtraRevenue)}
           icon={TrendingUp}
-          iconColor="text-green-500"
-          iconBgColor="bg-green-500/10"
+          color="emerald"
         />
-        <ModernCard
+        <DashboardMetricCard
           title="Receita Total"
-          value={formatCurrency(totalRevenueSold)}
+          metric={formatCurrency(totalRevenueSold)}
           icon={DollarSign}
-          description={`${formatCurrency(totalRevenueNet + totalExtraRevenue)} líquida`}
-          iconColor="text-gold"
-          iconBgColor="bg-gold/10"
+          color="amber"
         />
       </div>
 
       {/* Secondary Metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <ModernCard
+        <DashboardMetricCard
           title="Receita em Aberto"
-          value={formatCurrency(totalRevenueOutstanding)}
+          metric={formatCurrency(totalRevenueOutstanding)}
           icon={Wallet}
-          description="A receber"
-          iconColor="text-blue-500"
-          iconBgColor="bg-blue-500/10"
+          color="cyan"
         />
-        <ModernCard
+        <DashboardMetricCard
           title="Ticket Médio"
-          value={formatCurrency(averageTicket)}
+          metric={formatCurrency(averageTicket)}
           icon={BarChart3}
-          iconColor="text-purple-500"
-          iconBgColor="bg-purple-500/10"
+          color="violet"
         />
-        <ModernCard
+        <DashboardMetricCard
           title="Receita Vendida"
-          value={formatCurrency(totalRevenueSold)}
+          metric={formatCurrency(totalRevenueSold)}
           icon={Target}
-          iconColor="text-gold"
-          iconBgColor="bg-gold/10"
+          color="yellow"
         />
-        <ModernCard
+        <DashboardMetricCard
           title="Receita Extra"
-          value={formatCurrency(totalExtraRevenue)}
+          metric={formatCurrency(totalExtraRevenue)}
           icon={DollarSign}
-          description="Receitas adicionais"
-          iconColor="text-green-500"
-          iconBgColor="bg-green-500/10"
+          color="green"
         />
       </div>
 
@@ -184,22 +174,16 @@ export const ExecutiveDashboard = () => {
             <CardTitle className="text-gold">Comparativo de Receita</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={revenueComparisonData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
-                <YAxis dataKey="name" type="category" stroke="hsl(var(--muted-foreground))" />
-                <Tooltip 
-                  formatter={(value: any) => formatCurrency(Number(value))}
-                  contentStyle={{ 
-                    backgroundColor: "hsl(var(--card))", 
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px"
-                  }}
-                />
-                <Bar dataKey="value" radius={[0, 8, 8, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <BarChart
+              className="mt-6 h-80"
+              data={revenueComparisonData}
+              index="name"
+              categories={["value"]}
+              colors={["amber"]}
+              valueFormatter={(number) => formatCurrency(number)}
+              yAxisWidth={100}
+              showLegend={false}
+            />
           </CardContent>
         </Card>
 
@@ -209,41 +193,16 @@ export const ExecutiveDashboard = () => {
             <CardTitle className="text-gold">Evolução da Receita Líquida (Últimos 6 Meses)</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={monthlyRevenueData}>
-                <defs>
-                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#27AE60" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#27AE60" stopOpacity={0.1}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="month" 
-                  stroke="hsl(var(--muted-foreground))"
-                />
-                <YAxis 
-                  stroke="hsl(var(--muted-foreground))"
-                  tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
-                />
-                <Tooltip 
-                  formatter={(value: any) => formatCurrency(Number(value))}
-                  contentStyle={{ 
-                    backgroundColor: "hsl(var(--card))", 
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px"
-                  }}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#27AE60" 
-                  strokeWidth={2}
-                  fillOpacity={1} 
-                  fill="url(#colorRevenue)" 
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <AreaChart
+              className="mt-6 h-80"
+              data={monthlyRevenueData}
+              index="date"
+              categories={["Receita Líquida"]}
+              colors={["emerald"]}
+              valueFormatter={(number) => formatCurrency(number)}
+              yAxisWidth={100}
+              showLegend={false}
+            />
           </CardContent>
         </Card>
       </div>

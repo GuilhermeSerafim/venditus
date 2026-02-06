@@ -3,16 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
-import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { DonutChart, BarChart, Legend } from "@tremor/react";
+import { subMonths } from "date-fns";
 
 const PAYMENT_METHOD_COLORS: Record<string, string> = {
-  pix: "#27AE60",
-  boleto: "#3498DB",
-  cartao_credito: "#9B59B6",
-  transferencia: "#F39C12",
-  dinheiro: "#E74C3C",
-  parcelado: "#1ABC9C",
+  pix: "emerald", // tremor-emerald-500
+  boleto: "blue", // tremor-blue-500
+  cartao_credito: "purple", // tremor-purple-500
+  transferencia: "amber", // tremor-amber-500
+  dinheiro: "red", // tremor-red-500
+  parcelado: "teal", // tremor-teal-500
 };
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
@@ -88,16 +88,14 @@ export const PaymentMethodsDashboard = () => {
     paymentMethodValues[method] = (paymentMethodValues[method] || 0) + Number(sale.sold_value);
   });
 
-  const pieChartData = Object.entries(paymentMethodCounts).map(([method, count]) => ({
+  const donutChartData = Object.entries(paymentMethodCounts).map(([method, count]) => ({
     name: PAYMENT_METHOD_LABELS[method] || method,
     value: count,
-    color: PAYMENT_METHOD_COLORS[method] || "#6c757d",
   }));
 
   const barChartData = Object.entries(paymentMethodValues).map(([method, value]) => ({
     name: PAYMENT_METHOD_LABELS[method] || method,
-    value: value,
-    fill: PAYMENT_METHOD_COLORS[method] || "#6c757d",
+    "Valor": value,
   }));
 
   const formatCurrency = (value: number) => {
@@ -109,6 +107,9 @@ export const PaymentMethodsDashboard = () => {
 
   const totalSales = filteredSales.length;
   const totalValue = filteredSales.reduce((sum, sale) => sum + Number(sale.sold_value), 0);
+  
+  // Get colors array based on data keys
+  const donutColors = Object.keys(paymentMethodCounts).map(method => PAYMENT_METHOD_COLORS[method] || "gray");
 
   return (
     <Card className="border-border bg-card">
@@ -146,38 +147,27 @@ export const PaymentMethodsDashboard = () => {
       </CardHeader>
       <CardContent>
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Pie Chart - Count */}
-          <div>
+          {/* Donut Chart - Count */}
+          <div className="flex flex-col items-center">
             <h4 className="text-sm font-medium text-muted-foreground mb-4 text-center">
               Quantidade de Vendas ({totalSales} vendas)
             </h4>
-            {pieChartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={pieChartData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={100}
-                    dataKey="value"
-                  >
-                    {pieChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value: any) => [`${value} vendas`, "Quantidade"]}
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+            {donutChartData.length > 0 ? (
+              <>
+                <DonutChart
+                  className="mt-6"
+                  data={donutChartData}
+                  category="value"
+                  index="name"
+                  colors={donutColors}
+                  valueFormatter={(number) => `${number} vendas`}
+                />
+                <Legend
+                  className="mt-3"
+                  categories={donutChartData.map((d) => d.name)}
+                  colors={donutColors}
+                />
+              </>
             ) : (
               <div className="flex items-center justify-center h-[300px] text-muted-foreground">
                 Nenhuma venda encontrada
@@ -191,31 +181,16 @@ export const PaymentMethodsDashboard = () => {
               Valor por Forma de Pagamento ({formatCurrency(totalValue)})
             </h4>
             {barChartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={barChartData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis 
-                    type="number" 
-                    stroke="hsl(var(--muted-foreground))"
-                    tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
-                  />
-                  <YAxis 
-                    dataKey="name" 
-                    type="category" 
-                    stroke="hsl(var(--muted-foreground))"
-                    width={120}
-                  />
-                  <Tooltip
-                    formatter={(value: any) => [formatCurrency(Number(value)), "Valor"]}
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  <Bar dataKey="value" radius={[0, 8, 8, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <BarChart
+                className="mt-6 h-80"
+                data={barChartData}
+                index="name"
+                categories={["Valor"]}
+                colors={["amber"]} 
+                valueFormatter={(number) => formatCurrency(number)}
+                yAxisWidth={100}
+                layout="vertical"
+              />
             ) : (
               <div className="flex items-center justify-center h-[300px] text-muted-foreground">
                 Nenhuma venda encontrada
