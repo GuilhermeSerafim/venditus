@@ -12,24 +12,35 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      console.error('Missing Authorization header')
+      throw new Error('Missing Authorization header')
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
+          headers: { Authorization: authHeader },
         },
+        auth: {
+            persistSession: false,
+        }
       }
     )
 
     // Verify user is admin
+    const token = authHeader.replace('Bearer ', '')
     const {
       data: { user },
       error: userError,
-    } = await supabaseClient.auth.getUser()
+    } = await supabaseClient.auth.getUser(token)
 
     if (userError || !user) {
-      throw new Error('Unauthorized')
+      console.error('User auth failed:', userError)
+      throw new Error(`Unauthorized: ${userError?.message || 'User not found'}`)
     }
 
     const { data: roles, error: rolesError } = await supabaseClient
@@ -76,7 +87,8 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     })
-  } catch (error) {
+    } catch (error) {
+    console.error('Error in create-user:', error)
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 400,

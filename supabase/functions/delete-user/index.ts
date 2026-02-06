@@ -4,6 +4,7 @@ Deno.serve(async (req) => {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE',
   }
 
   if (req.method === 'OPTIONS') {
@@ -35,7 +36,7 @@ Deno.serve(async (req) => {
 
     // Get the user from the JWT token using admin client
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token)
-    
+
     console.log('Auth result:', { userId: user?.id, authError: authError?.message })
 
     if (authError || !user) {
