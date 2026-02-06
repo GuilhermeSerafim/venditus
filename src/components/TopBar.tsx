@@ -21,7 +21,7 @@ export const TopBar = () => {
         <MobileNav />
         
         {/* Right side actions */}
-        <div className="flex items-center gap-1 md:gap-2">
+        <div className="flex items-center gap-1 md:gap-2 ml-auto">
         {/* Theme Toggle */}
         <Button
           variant="ghost"
