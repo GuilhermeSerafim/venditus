@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface AuthContextType {
   user: User | null;
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     // Set up auth state listener
@@ -78,6 +80,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signOut = async () => {
+    // Clear organization cache to prevent theme bleeding across accounts
+    queryClient.invalidateQueries({ queryKey: ["organization"] });
+    queryClient.removeQueries({ queryKey: ["organization"] });
+    
+    // Reset CSS variables to default gold theme
+    const root = document.documentElement;
+    root.style.setProperty("--gold", "43 74% 49%");
+    root.style.setProperty("--primary", "43 74% 49%");
+    root.style.setProperty("--ring", "43 74% 49%");
+    
     await supabase.auth.signOut();
     navigate("/auth");
   };

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./useAuth";
 
 export interface ThemeConfig {
   primaryColor: string;
@@ -16,25 +17,27 @@ export interface Organization {
 }
 
 export const useOrganization = () => {
+  const { user } = useAuth();
+  
   return useQuery({
     queryKey: ["organization"],
     queryFn: async () => {
-      const { data: profile, error: profileError } = await (supabase
-        .from("profiles") as any)
-        .select("organization_id")
-        .single();
+      // 1. Get the organization ID directly via RPC (helper function)
+      // This is faster and avoids the "multiple rows" error from filtering profiles manually
+      const { data: orgId, error: orgIdError } = await supabase.rpc('get_auth_organization_id');
 
-      if (profileError) {
-        // If profile fetch fails, user might not be logged in or other issue
+      if (orgIdError) {
+        console.error("Error fetching org ID:", orgIdError);
         return null;
       }
 
-      if (!profile?.organization_id) return null;
+      if (!orgId) return null;
 
+      // 2. Fetch the organization details
       const { data, error } = await supabase
         .from("organizations")
         .select("*")
-        .eq("id", (profile as any).organization_id)
+        .eq("id", orgId)
         .single();
 
       if (error) {
@@ -44,7 +47,7 @@ export const useOrganization = () => {
 
       return data as unknown as Organization;
     },
-    // Only run if we have a user, handled by caller or simple retry logic
+    enabled: !!user, // Only run when user is authenticated
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };

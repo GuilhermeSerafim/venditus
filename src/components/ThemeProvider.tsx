@@ -39,20 +39,14 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: org, isLoading } = useOrganization();
 
   useEffect(() => {
+    const root = document.documentElement;
+    const defaultGold = "43 74% 49%";
+    
+    // Don't do anything while loading to avoid flash
+    if (isLoading) return;
+    
     if (org?.theme_config?.primaryColor) {
-      const root = document.documentElement;
-      const primaryHSL = hexToHSL(org.theme_config.primaryColor);
-      
-      // Update CSS variables
-      // We assume the stored color is Hex, but index.css uses HSL space-separated
-      // Our helper converts Hex to HSL string "H S% L%"
-      
-      // Since the input might be HSL string directly or Hex, we need to handle it.
-      // The default migration sets it as "hsl(43 74% 49%)" string or similar in JSON?
-      // Migration said: '{"primaryColor": "hsl(43 74% 49%)", ...}'
-      // Let's assume the admin input will be Hex (color picker) and we store it as checks.
-      
-      // If the value in DB is already HSL string (from default), use it directly but strip "hsl(" and ")"
+      // Parse and apply custom color
       let colorValue = org.theme_config.primaryColor;
       
       if (colorValue.startsWith('#')) {
@@ -64,9 +58,13 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       root.style.setProperty("--gold", colorValue);
       root.style.setProperty("--primary", colorValue);
       root.style.setProperty("--ring", colorValue);
-      // We could calculate light/dark variants here if we wanted to be fancy
+    } else if (!isLoading && !org) {
+      // Only reset to default gold when we're sure there's no org (after loading)
+      root.style.setProperty("--gold", defaultGold);
+      root.style.setProperty("--primary", defaultGold);
+      root.style.setProperty("--ring", defaultGold);
     }
-  }, [org]);
+  }, [org, isLoading]);
 
   return <>{children}</>;
 };

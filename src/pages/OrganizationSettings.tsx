@@ -96,6 +96,32 @@ const OrganizationSettings = () => {
     );
   }
 
+  if (!org) {
+    return (
+      <div className="min-h-screen bg-background dark:bg-gradient-radial-dark bg-gradient-radial-light">
+        <AppSidebar />
+        <div className="pl-[68px] min-h-screen">
+          <TopBar />
+          <main className="px-6 py-6">
+            <div className="max-w-2xl mx-auto">
+              <Card className="border-red-500/50 bg-red-500/10">
+                <CardHeader>
+                  <CardTitle className="text-red-600">Erro de Configuração</CardTitle>
+                  <CardDescription className="text-red-600/90">
+                    Não foi possível encontrar os dados da organização. Isso geralmente acontece se as migrações do banco de dados não foram aplicadas.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm">Por favor, verifique se o arquivo <code>white_label_schema.sql</code> foi executado no Supabase.</p>
+                </CardContent>
+              </Card>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <AppLayout 
       title="Configurações da Organização" 
