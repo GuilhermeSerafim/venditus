@@ -14,6 +14,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { useRoles } from "@/hooks/useRoles";
+import { useOrganization } from "@/hooks/useOrganization";
 import { cn } from "@/lib/utils";
 import venditusLogo from "@/assets/venditus-logo.png";
 
@@ -56,6 +57,7 @@ const NavItem = ({ to, icon, label, isCollapsed, isActive }: NavItemProps) => {
 export const AppSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const location = useLocation();
+  const { data: org } = useOrganization();
   const { 
     canAccessLeads, 
     canAccessSales, 
@@ -92,22 +94,46 @@ export const AppSidebar = () => {
         "flex items-center gap-3 px-4 py-5 border-b border-sidebar-border",
         isCollapsed && "justify-center px-2"
       )}>
-        <div className="h-9 w-9 rounded-lg overflow-hidden flex-shrink-0 ring-2 ring-gold/20">
-          <img 
-            src={venditusLogo} 
-            alt="Venditus" 
-            className="h-full w-full object-cover"
-          />
-        </div>
-        {!isCollapsed && (
-          <div className="flex flex-col overflow-hidden">
-            <span className="text-sm font-semibold text-sidebar-foreground truncate">
-              Venditus
-            </span>
-            <span className="text-[10px] text-muted-foreground truncate">
-              Sistema de Gestão
-            </span>
+        {org?.theme_config?.logoUrl ? (
+          // Organization Logo
+          <div className={cn(
+            "flex items-center gap-3 overflow-hidden",
+            isCollapsed && "justify-center"
+          )}>
+            <div className="h-9 flex-shrink-0">
+              <img 
+                src={org.theme_config.logoUrl} 
+                alt={org.name}
+                className="h-full w-auto object-contain"
+              />
+            </div>
+            {!isCollapsed && org.name && (
+              <span className="font-display font-bold text-sm text-foreground truncate">
+                {org.name}
+              </span>
+            )}
           </div>
+        ) : (
+          // Default Venditus Logo
+          <>
+            <div className="h-9 w-9 rounded-lg overflow-hidden flex-shrink-0 ring-2 ring-gold/20">
+              <img 
+                src={venditusLogo} 
+                alt="Venditus" 
+                className="h-full w-full object-cover"
+              />
+            </div>
+            {!isCollapsed && (
+              <div className="flex flex-col overflow-hidden">
+                <span className="text-sm font-semibold text-sidebar-foreground truncate">
+                  Venditus
+                </span>
+                <span className="text-[10px] text-muted-foreground truncate">
+                  Sistema de Gestão
+                </span>
+              </div>
+            )}
+          </>
         )}
       </div>
 

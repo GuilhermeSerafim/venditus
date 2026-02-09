@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Loader2, Save } from "lucide-react";
+import { Shield, Loader2, Save, Upload, Image as ImageIcon } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TopBar } from "@/components/TopBar";
 
@@ -21,6 +21,8 @@ const OrganizationSettings = () => {
 
   const [name, setName] = useState("");
   const [primaryColor, setPrimaryColor] = useState("#DAA520"); // Default gold-ish
+  const [uploading, setUploading] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (org) {
@@ -28,8 +30,80 @@ const OrganizationSettings = () => {
       if (org.theme_config?.primaryColor) {
         setPrimaryColor(org.theme_config.primaryColor);
       }
+      if (org.theme_config?.logoUrl) {
+        setLogoUrl(org.theme_config.logoUrl);
+      }
     }
   }, [org]);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !org) return;
+
+    // Validate file size (2MB max)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ 
+        title: "Arquivo muito grande", 
+        description: "O tamanho máximo é 2MB", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    // Validate file type
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
+    if (!validTypes.includes(file.type)) {
+      toast({ 
+        title: "Tipo de arquivo inválido", 
+        description: "Apenas PNG, JPG ou SVG são permitidos", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      // Upload to storage: organization-logos/{org_id}/{filename}
+      const filePath = `${org.id}/${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('organization-logos')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('organization-logos')
+        .getPublicUrl(filePath);
+
+      // Update organization theme_config with new logo URL
+      const theme_config = {
+        ...org.theme_config,
+        primaryColor: org.theme_config?.primaryColor || "#DAA520",
+        logoUrl: publicUrl,
+      };
+
+      const { error: updateError } = await (supabase
+        .from("organizations") as any)
+        .update({ theme_config })
+        .eq("id", org.id);
+
+      if (updateError) throw updateError;
+
+      setLogoUrl(publicUrl);
+      queryClient.invalidateQueries({ queryKey: ["organization"] });
+      toast({ title: "Logo atualizada com sucesso!" });
+    } catch (error: any) {
+      toast({ 
+        title: "Erro ao fazer upload", 
+        description: error.message, 
+        variant: "destructive" 
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const updateOrgMutation = useMutation({
     mutationFn: async (values: { name: string; primaryColor: string }) => {
@@ -144,6 +218,40 @@ const OrganizationSettings = () => {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ex: Minha Empresa"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Logo da Organização</Label>
+              
+              {/* Current Logo Preview */}
+              {logoUrl && (
+                <div className="mb-4 p-4 border border-border rounded-lg bg-muted/30">
+                  <img 
+                    src={logoUrl} 
+                    alt="Logo atual"
+                    className="h-16 w-auto object-contain"
+                  />
+                </div>
+              )}
+              
+              {/* Upload Input */}
+              <div className="flex items-center gap-3">
+                <Input 
+                  id="logo-upload"
+                  type="file" 
+                  accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+                  onChange={handleLogoUpload}
+                  disabled={uploading}
+                  className="cursor-pointer"
+                />
+                {uploading && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </div>
+              
+              <p className="text-xs text-muted-foreground">
+                PNG, JPG ou SVG. Máximo 2MB. Recomendado: 200x50px ou similar.
+              </p>
             </div>
 
             <div className="space-y-2">
