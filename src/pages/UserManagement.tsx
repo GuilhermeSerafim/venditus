@@ -13,6 +13,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { TopBar } from "@/components/TopBar";
 import { CreateUserDialog } from "@/components/CreateUserDialog";
 import { TablePagination } from "@/components/TablePagination";
+import { useOrganization } from "@/hooks/useOrganization";
 import { useState, useMemo } from "react";
 import {
   AlertDialog,
@@ -39,6 +40,7 @@ interface UserWithRoles extends Profile {
 
 const UserManagement = () => {
   const { isAdmin, isLoading: rolesLoading } = useRoles();
+  const { data: organization } = useOrganization();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
@@ -92,9 +94,11 @@ const UserManagement = () => {
       
       if (deleteError) throw deleteError;
 
+      if (!organization?.id) throw new Error("Organization ID not found");
+
       const { error: insertError } = await supabase
         .from("user_roles")
-        .insert({ user_id: userId, role });
+        .insert({ user_id: userId, role, organization_id: organization.id });
       
       if (insertError) throw insertError;
     },

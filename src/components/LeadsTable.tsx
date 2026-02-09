@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, Eye } from "lucide-react";
 import { EditLeadDialog } from "./EditLeadDialog";
 import { LeadDetailsDialog } from "./LeadDetailsDialog";
@@ -24,7 +25,11 @@ export const LeadsTable = () => {
   const { data: leads, isLoading } = useQuery({
     queryKey: ["leads"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("leads").select("*").order("created_at", { ascending: false });
+      // Fetch leads with sales count to determine if they are customers
+      const { data, error } = await supabase
+        .from("leads")
+        .select("*, sales(id)")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -90,16 +95,30 @@ export const LeadsTable = () => {
               <SortableTableHead key="email" label="Email" sortKey="email" currentSort={sort} onSort={handleSort} />
               <SortableTableHead key="phone" label="Telefone" sortKey="phone" currentSort={sort} onSort={handleSort} />
               <SortableTableHead key="lead_source" label="Origem" sortKey="lead_source" currentSort={sort} onSort={handleSort} />
+              <SortableTableHead key="status" label="Status" sortKey="" currentSort={null} onSort={() => {}} />
               <SortableTableHead key="actions" label="Ações" sortKey="" currentSort={null} onSort={() => {}} className="text-right" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedLeads.map((lead) => (
+            {paginatedLeads.map((lead) => {
+              const isCustomer = lead.sales && lead.sales.length > 0;
+              return (
               <TableRow key={lead.id} className="border-border">
                 <TableCell className="font-medium text-foreground">{lead.name}</TableCell>
                 <TableCell className="text-muted-foreground">{lead.email || "-"}</TableCell>
                 <TableCell className="text-muted-foreground">{lead.phone || "-"}</TableCell>
                 <TableCell className="text-muted-foreground">{lead.lead_source || "-"}</TableCell>
+                <TableCell>
+                  {isCustomer ? (
+                    <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
+                      Cliente
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">
+                      Lead
+                    </Badge>
+                  )}
+                </TableCell>
                 <TableCell className="text-right space-x-2">
                   <Button
                     size="sm"
@@ -131,7 +150,8 @@ export const LeadsTable = () => {
                   )}
                 </TableCell>
               </TableRow>
-            ))}
+              );
+            })}
           </TableBody>
         </Table>
         <TablePagination
