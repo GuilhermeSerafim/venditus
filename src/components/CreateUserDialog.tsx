@@ -33,6 +33,52 @@ export const CreateUserDialog = ({ onUserCreated }: CreateUserDialogProps) => {
 
   const createMutation = useMutation({
     mutationFn: async (values: any) => {
+      // Debug: Check authentication state
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      console.log('🔍 Debug - Session check:', {
+        hasSession: !!session,
+        hasAccessToken: !!session?.access_token,
+        sessionError,
+        userId: session?.user?.id,
+        tokenLength: session?.access_token?.length,
+      });
+
+      if (!session || !session.access_token) {
+        throw new Error('Você não está autenticado. Por favor, faça login novamente.');
+      }
+
+      // Check if token is about to expire (less than 5 minutes remaining)
+      const tokenExpiresAt = session.expires_at;
+      const now = Math.floor(Date.now() / 1000);
+      const timeToExpiry = tokenExpiresAt ? tokenExpiresAt - now : 0;
+      
+      console.log('⏰ Token expiry check:', {
+        expiresAt: new Date(tokenExpiresAt! * 1000).toISOString(),
+        timeToExpiry: `${Math.floor(timeToExpiry / 60)} minutes`,
+        needsRefresh: timeToExpiry < 300,
+      });
+
+      // Try to refresh if token is expiring soon
+      if (timeToExpiry < 300) {
+        console.log('🔄 Token expiring soon, refreshing session...');
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        
+        if (refreshError) {
+          console.error('❌ Session refresh failed:', refreshError);
+          throw new Error('Sessão expirada. Por favor, faça login novamente.');
+        }
+        
+        console.log('✅ Session refreshed successfully');
+      }
+
+      console.log('📤 Calling create-user function with:', {
+        email: values.email,
+        name: values.name,
+        role: values.role,
+        organization_id: org?.id,
+      });
+
       const { data, error } = await supabase.functions.invoke("create-user", {
         body: {
           ...values,
@@ -40,8 +86,22 @@ export const CreateUserDialog = ({ onUserCreated }: CreateUserDialogProps) => {
         },
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      console.log('📥 Response from create-user:', { 
+        hasData: !!data,
+        hasError: !!error,
+        errorMessage: error?.message,
+        dataError: data?.error,
+      });
+
+      if (error) {
+        console.error('❌ Edge function error:', error);
+        throw error;
+      }
+      
+      if (data?.error) {
+        console.error('❌ Create user error:', data.error);
+        throw new Error(data.error);
+      }
       
       return data;
     },

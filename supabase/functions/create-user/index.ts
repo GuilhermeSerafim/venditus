@@ -13,10 +13,18 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get('Authorization')
+    console.log('🔍 Auth header received:', authHeader ? 'Present' : 'Missing')
+    
     if (!authHeader) {
       console.error('Missing Authorization header')
       throw new Error('Missing Authorization header')
     }
+
+    console.log('🔧 Environment check:', {
+      hasSupabaseUrl: !!Deno.env.get('SUPABASE_URL'),
+      hasAnonKey: !!Deno.env.get('SUPABASE_ANON_KEY'),
+      hasServiceKey: !!Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
+    })
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -33,10 +41,18 @@ Deno.serve(async (req) => {
 
     // Verify user is admin
     const token = authHeader.replace('Bearer ', '')
+    console.log('🎫 Token extracted, length:', token.length)
+    
     const {
       data: { user },
       error: userError,
     } = await supabaseClient.auth.getUser(token)
+
+    console.log('👤 User verification:', {
+      hasUser: !!user,
+      userId: user?.id,
+      error: userError?.message,
+    })
 
     if (userError || !user) {
       console.error('User auth failed:', userError)
@@ -53,7 +69,7 @@ Deno.serve(async (req) => {
       throw new Error('Forbidden - only admins can create users')
     }
 
-    const { email, password, name, role } = await req.json()
+    const { email, password, name, role, organization_id } = await req.json()
 
     // Initialize admin client to perform the action
     const supabaseAdmin = createClient(
@@ -74,7 +90,7 @@ Deno.serve(async (req) => {
     if (role) {
         const { error: roleError } = await supabaseAdmin
         .from('user_roles')
-        .insert({ user_id: newUser.user.id, role })
+        .insert({ user_id: newUser.user.id, role, organization_id })
         
         if (roleError) {
              // Rollback user creation if role assignment fails
