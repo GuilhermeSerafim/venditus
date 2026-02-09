@@ -15,7 +15,7 @@ export const AppLayout = ({ children, title, description, actions }: AppLayoutPr
     <div className="min-h-screen bg-background dark:bg-gradient-radial-dark bg-gradient-radial-light">
       <AppSidebar />
       
-      <div className="md:pl-[68px] min-h-screen transition-all duration-300">
+      <div className="md:pl-[68px] min-h-screen transition-all duration-300 overflow-x-hidden">
         <TopBar />
         
         <main className="px-4 py-4 md:px-6 md:py-6 animate-fade-in">
