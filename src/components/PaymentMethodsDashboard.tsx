@@ -149,9 +149,6 @@ export const PaymentMethodsDashboard = () => {
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Donut Chart - Count */}
           <div className="flex flex-col items-center">
-            <h4 className="text-sm font-medium text-muted-foreground mb-4 text-center">
-              Quantidade de Vendas ({totalSales} vendas)
-            </h4>
             {donutChartData.length > 0 ? (
               <>
                 <DonutChart
