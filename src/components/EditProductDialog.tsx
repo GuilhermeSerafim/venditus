@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useOrganization } from "@/hooks/useOrganization";
 
 interface EditProductDialogProps {
   product: any;
@@ -17,6 +18,7 @@ interface EditProductDialogProps {
 export const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: org } = useOrganization();
   const isEditing = !!product;
 
   const form = useForm({
@@ -36,7 +38,10 @@ export const EditProductDialog = ({ product, open, onOpenChange }: EditProductDi
           .eq("id", product.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("products").insert(values);
+        const { error } = await supabase.from("products").insert({
+          ...values,
+          organization_id: org?.id,
+        });
         if (error) throw error;
       }
     },
