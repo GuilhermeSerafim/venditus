@@ -100,10 +100,10 @@ export const LeadsTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedLeads.map((lead) => {
+            {paginatedLeads.map((lead, index) => {
               const isCustomer = lead.sales && lead.sales.length > 0;
               return (
-              <TableRow key={lead.id} className="border-border">
+              <TableRow key={lead.id || index} className="border-border">
                 <TableCell className="font-medium text-foreground">{lead.name}</TableCell>
                 <TableCell className="text-muted-foreground">{lead.email || "-"}</TableCell>
                 <TableCell className="text-muted-foreground">{lead.phone || "-"}</TableCell>
@@ -131,6 +131,7 @@ export const LeadsTable = () => {
                   {canEditLeads && (
                     <>
                       <Button
+                        key="edit-btn"
                         size="sm"
                         variant="ghost"
                         onClick={() => setEditingLead(lead)}
@@ -139,6 +140,7 @@ export const LeadsTable = () => {
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
+                        key="delete-btn"
                         size="sm"
                         variant="ghost"
                         onClick={() => deleteMutation.mutate(lead.id)}

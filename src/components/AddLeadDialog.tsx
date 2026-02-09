@@ -92,7 +92,7 @@ export const AddLeadDialog = ({ open, onOpenChange }: AddLeadDialogProps) => {
                 id="name"
                 name="name"
                 required
-                className="bg-secondary border-border"
+                className="bg-background border-border"
               />
             </div>
             <div className="space-y-2">
@@ -101,7 +101,7 @@ export const AddLeadDialog = ({ open, onOpenChange }: AddLeadDialogProps) => {
                 id="company_name"
                 name="company_name"
                 required
-                className="bg-secondary border-border"
+                className="bg-background border-border"
               />
             </div>
           </div>
@@ -113,7 +113,7 @@ export const AddLeadDialog = ({ open, onOpenChange }: AddLeadDialogProps) => {
                 id="cpf"
                 name="cpf"
                 placeholder="000.000.000-00"
-                className="bg-secondary border-border"
+                className="bg-background border-border"
               />
             </div>
             <div className="space-y-2">
@@ -122,7 +122,7 @@ export const AddLeadDialog = ({ open, onOpenChange }: AddLeadDialogProps) => {
                 id="cnpj"
                 name="cnpj"
                 placeholder="00.000.000/0000-00"
-                className="bg-secondary border-border"
+                className="bg-background border-border"
               />
             </div>
           </div>
@@ -134,7 +134,7 @@ export const AddLeadDialog = ({ open, onOpenChange }: AddLeadDialogProps) => {
                 id="email"
                 name="email"
                 type="email"
-                className="bg-secondary border-border"
+                className="bg-background border-border"
               />
             </div>
             <div className="space-y-2">
@@ -142,7 +142,7 @@ export const AddLeadDialog = ({ open, onOpenChange }: AddLeadDialogProps) => {
               <Input
                 id="phone"
                 name="phone"
-                className="bg-secondary border-border"
+                className="bg-background border-border"
               />
             </div>
           </div>
@@ -151,7 +151,7 @@ export const AddLeadDialog = ({ open, onOpenChange }: AddLeadDialogProps) => {
             <div className="space-y-2">
               <Label htmlFor="lead_source">Origem do Lead *</Label>
               <Select name="lead_source" defaultValue="Outros">
-                <SelectTrigger className="bg-secondary border-border">
+                <SelectTrigger className="bg-background border-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -187,7 +187,7 @@ export const AddLeadDialog = ({ open, onOpenChange }: AddLeadDialogProps) => {
                 name="partner_name"
                 placeholder="Nome do Sócio"
                 disabled
-                className="bg-secondary border-border disabled:opacity-50"
+                className="bg-background border-border disabled:opacity-50"
               />
             </div>
           </div>
@@ -197,7 +197,7 @@ export const AddLeadDialog = ({ open, onOpenChange }: AddLeadDialogProps) => {
             <Textarea
               id="notes"
               name="notes"
-              className="bg-secondary border-border min-h-[100px]"
+              className="bg-background border-border min-h-[100px]"
             />
           </div>
 

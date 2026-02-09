@@ -322,12 +322,12 @@ export const EditSaleDialog = ({ sale, open, onOpenChange }: EditSaleDialogProps
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="pix">Pix</SelectItem>
-                        <SelectItem value="boleto">Boleto</SelectItem>
-                        <SelectItem value="cartao_credito">Cartão de Crédito</SelectItem>
-                        <SelectItem value="transferencia">Transferência</SelectItem>
-                        <SelectItem value="dinheiro">Dinheiro</SelectItem>
-                        <SelectItem value="parcelado">Parcelado</SelectItem>
+                        <SelectItem key="pix" value="pix">Pix</SelectItem>
+                        <SelectItem key="boleto" value="boleto">Boleto</SelectItem>
+                        <SelectItem key="cartao_credito" value="cartao_credito">Cartão de Crédito</SelectItem>
+                        <SelectItem key="transferencia" value="transferencia">Transferência</SelectItem>
+                        <SelectItem key="dinheiro" value="dinheiro">Dinheiro</SelectItem>
+                        <SelectItem key="parcelado" value="parcelado">Parcelado</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -364,7 +364,7 @@ export const EditSaleDialog = ({ sale, open, onOpenChange }: EditSaleDialogProps
                     <div className="grid grid-cols-4 gap-2">
                       {installmentsStatus.map((installment, index) => (
                         <button
-                          key={index}
+                          key={`installment-${installment.number}-${index}`}
                           type="button"
                           onClick={() => toggleInstallmentStatus(index)}
                           className={`flex items-center gap-2 p-2 rounded-lg border transition-all ${
@@ -374,9 +374,9 @@ export const EditSaleDialog = ({ sale, open, onOpenChange }: EditSaleDialogProps
                           }`}
                         >
                           {installment.paid ? (
-                            <CheckCircle2 className="h-4 w-4" />
+                            <CheckCircle2 key="icon-checked" className="h-4 w-4" />
                           ) : (
-                            <Circle className="h-4 w-4" />
+                            <Circle key="icon-unchecked" className="h-4 w-4" />
                           )}
                           <span className="text-sm font-medium">Parcela {installment.number}</span>
                         </button>
@@ -401,8 +401,8 @@ export const EditSaleDialog = ({ sale, open, onOpenChange }: EditSaleDialogProps
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="pending">Pendente</SelectItem>
-                        <SelectItem value="paid">Pago</SelectItem>
+                        <SelectItem key="pending" value="pending">Pendente</SelectItem>
+                        <SelectItem key="paid" value="paid">Pago</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
