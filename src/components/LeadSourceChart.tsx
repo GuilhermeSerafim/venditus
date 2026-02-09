@@ -52,7 +52,6 @@ export const LeadSourceChart = () => {
               category="value"
               index="name"
               colors={["yellow", "blue", "violet", "emerald", "amber", "red", "indigo"]}
-              valueFormatter={valueFormatter}
               showLabel={true}
               showAnimation={true}
               showTooltip={true}

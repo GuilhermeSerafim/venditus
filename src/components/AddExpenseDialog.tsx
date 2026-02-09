@@ -83,7 +83,7 @@ export const AddExpenseDialog = ({ open, onOpenChange }: AddExpenseDialogProps) 
               id="name"
               name="name"
               required
-              className="bg-secondary border-border"
+              className="border-border"
               placeholder="Ex: Aluguel da sala, Marketing Digital..."
             />
           </div>
@@ -92,7 +92,7 @@ export const AddExpenseDialog = ({ open, onOpenChange }: AddExpenseDialogProps) 
             <div className="space-y-2">
               <Label htmlFor="type">Tipo *</Label>
               <Select name="type" required>
-                <SelectTrigger className="bg-secondary border-border">
+                <SelectTrigger className="border-border">
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -113,7 +113,7 @@ export const AddExpenseDialog = ({ open, onOpenChange }: AddExpenseDialogProps) 
                 type="number"
                 step="0.01"
                 required
-                className="bg-secondary border-border"
+                className="border-border"
                 placeholder="0,00"
               />
             </div>
@@ -127,7 +127,7 @@ export const AddExpenseDialog = ({ open, onOpenChange }: AddExpenseDialogProps) 
               type="date"
               required
               defaultValue={new Date().toISOString().split("T")[0]}
-              className="bg-secondary border-border"
+              className="border-border"
             />
           </div>
 
@@ -136,7 +136,7 @@ export const AddExpenseDialog = ({ open, onOpenChange }: AddExpenseDialogProps) 
             <Textarea
               id="notes"
               name="notes"
-              className="bg-secondary border-border"
+              className="border-border"
               placeholder="Informações adicionais..."
             />
           </div>
