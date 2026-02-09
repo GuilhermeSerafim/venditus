@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, UserPlus } from "lucide-react";
 import { AppRole } from "@/hooks/useRoles";
+import { useOrganization } from "@/hooks/useOrganization";
 
 interface CreateUserDialogProps {
   onUserCreated?: () => void;
@@ -19,6 +20,7 @@ export const CreateUserDialog = ({ onUserCreated }: CreateUserDialogProps) => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: org } = useOrganization();
 
   const form = useForm({
     defaultValues: {
@@ -32,7 +34,10 @@ export const CreateUserDialog = ({ onUserCreated }: CreateUserDialogProps) => {
   const createMutation = useMutation({
     mutationFn: async (values: any) => {
       const { data, error } = await supabase.functions.invoke("create-user", {
-        body: values,
+        body: {
+          ...values,
+          organization_id: org?.id,
+        },
       });
 
       if (error) throw error;
