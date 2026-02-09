@@ -73,11 +73,11 @@ export const LeadsTable = () => {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-border">
-              <SortableTableHead label="Nome" sortKey="name" currentSort={sort} onSort={handleSort} />
-              <SortableTableHead label="Email" sortKey="email" currentSort={sort} onSort={handleSort} />
-              <SortableTableHead label="Telefone" sortKey="phone" currentSort={sort} onSort={handleSort} />
-              <SortableTableHead label="Origem" sortKey="lead_source" currentSort={sort} onSort={handleSort} />
-              <SortableTableHead label="Ações" sortKey="" currentSort={null} onSort={() => {}} className="text-right" />
+              <SortableTableHead key="name" label="Nome" sortKey="name" currentSort={sort} onSort={handleSort} />
+              <SortableTableHead key="email" label="Email" sortKey="email" currentSort={sort} onSort={handleSort} />
+              <SortableTableHead key="phone" label="Telefone" sortKey="phone" currentSort={sort} onSort={handleSort} />
+              <SortableTableHead key="lead_source" label="Origem" sortKey="lead_source" currentSort={sort} onSort={handleSort} />
+              <SortableTableHead key="actions" label="Ações" sortKey="" currentSort={null} onSort={() => {}} className="text-right" />
             </TableRow>
           </TableHeader>
           <TableBody>
