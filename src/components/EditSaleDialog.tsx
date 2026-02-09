@@ -31,6 +31,22 @@ export const EditSaleDialog = ({ sale, open, onOpenChange }: EditSaleDialogProps
 
   const [installmentsStatus, setInstallmentsStatus] = useState<InstallmentStatus[]>([]);
 
+  // Fetch user's organization_id
+  const { data: userProfile } = useQuery({
+    queryKey: ["userProfile", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("organization_id")
+        .eq("user_id", user.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
   const { data: leads } = useQuery({
     queryKey: ["leads"],
     queryFn: async () => {
@@ -145,6 +161,8 @@ export const EditSaleDialog = ({ sale, open, onOpenChange }: EditSaleDialogProps
         sold_value: parseFloat(values.sold_value) || 0,
         outstanding_value: parseFloat(values.outstanding_value) || 0,
         net_value: parseFloat(values.net_value) || 0,
+        expected_payment_date: values.expected_payment_date || null,
+        paid_date: values.paid_date || null,
         installments_count: values.payment_method === "parcelado" ? parseInt(values.installments_count) || 1 : 1,
         installments_status: values.payment_method === "parcelado" ? installmentsStatus : [],
       };
@@ -159,6 +177,7 @@ export const EditSaleDialog = ({ sale, open, onOpenChange }: EditSaleDialogProps
         const { error } = await supabase.from("sales").insert({
           ...saleData,
           user_id: user?.id,
+          organization_id: userProfile?.organization_id,
         });
         if (error) throw error;
       }
