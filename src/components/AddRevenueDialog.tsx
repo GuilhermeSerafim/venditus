@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useOrganization } from "@/hooks/useOrganization";
 
 interface AddRevenueDialogProps {
   open: boolean;
@@ -19,6 +20,7 @@ interface AddRevenueDialogProps {
 export const AddRevenueDialog = ({ open, onOpenChange }: AddRevenueDialogProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { data: org } = useOrganization();
   const queryClient = useQueryClient();
   const form = useForm({
     defaultValues: {
@@ -36,6 +38,7 @@ export const AddRevenueDialog = ({ open, onOpenChange }: AddRevenueDialogProps) 
         ...values,
         amount: Number(values.amount),
         user_id: user?.id,
+        organization_id: org?.id,
       });
       if (error) throw error;
     },

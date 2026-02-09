@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useOrganization } from "@/hooks/useOrganization";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +32,7 @@ export const AddExpenseDialog = ({ open, onOpenChange }: AddExpenseDialogProps) 
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { data: org } = useOrganization();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -44,6 +46,7 @@ export const AddExpenseDialog = ({ open, onOpenChange }: AddExpenseDialogProps) 
       expense_date: formData.get("expense_date") as string,
       notes: formData.get("notes") as string,
       user_id: user?.id,
+      organization_id: org?.id,
     };
 
     try {

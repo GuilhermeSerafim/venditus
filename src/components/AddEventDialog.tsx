@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useOrganization } from "@/hooks/useOrganization";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +22,7 @@ export const AddEventDialog = ({ open, onOpenChange }: AddEventDialogProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: org } = useOrganization();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,6 +40,7 @@ export const AddEventDialog = ({ open, onOpenChange }: AddEventDialogProps) => {
       negotiation_count: parseInt(formData.get("negotiation_count") as string) || 0,
       purchased_count: parseInt(formData.get("purchased_count") as string) || 0,
       notes: formData.get("notes") as string,
+      organization_id: org?.id,
     };
 
     try {
