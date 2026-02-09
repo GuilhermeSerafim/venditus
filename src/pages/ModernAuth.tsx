@@ -117,7 +117,7 @@ const ModernAuth = () => {
 
           {/* Tabs */}
           <Tabs defaultValue="signin" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6 bg-secondary/50 p-1 rounded-2xl">
+          <TabsList className="grid w-full grid-cols-2 mb-6 p-1 rounded-2xl">
             <TabsTrigger 
               value="signin" 
               className="rounded-xl data-[state=active]:bg-gold data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
