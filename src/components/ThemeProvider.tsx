@@ -41,28 +41,64 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const root = document.documentElement;
     const defaultGold = "43 74% 49%";
+    const defaultGray = "215 16% 47%"; // Neutral gray
     
     // Don't do anything while loading to avoid flash
     if (isLoading) return;
     
-    if (org?.theme_config?.primaryColor) {
-      // Parse and apply custom color
-      let colorValue = org.theme_config.primaryColor;
-      
-      if (colorValue.startsWith('#')) {
-         colorValue = hexToHSL(colorValue);
-      } else if (colorValue.startsWith('hsl')) {
-         colorValue = colorValue.replace('hsl(', '').replace(')', '').replace(/,/g, '');
-      }
+    if (org?.theme_config) {
+      // PRIMARY COLOR
+      if (org.theme_config.primaryColor) {
+        let primaryValue = org.theme_config.primaryColor;
+        
+        if (primaryValue.startsWith('#')) {
+          primaryValue = hexToHSL(primaryValue);
+        } else if (primaryValue.startsWith('hsl')) {
+          primaryValue = primaryValue.replace('hsl(', '').replace(')', '').replace(/,/g, '');
+        }
 
-      root.style.setProperty("--gold", colorValue);
-      root.style.setProperty("--primary", colorValue);
-      root.style.setProperty("--ring", colorValue);
+        root.style.setProperty("--gold", primaryValue);
+        root.style.setProperty("--primary", primaryValue);
+        root.style.setProperty("--ring", primaryValue);
+      }
+      
+      // SECONDARY COLOR
+      if (org.theme_config.secondaryColor) {
+        let secondaryValue = org.theme_config.secondaryColor;
+        
+        if (secondaryValue.startsWith('#')) {
+          secondaryValue = hexToHSL(secondaryValue);
+        } else if (secondaryValue.startsWith('hsl')) {
+          secondaryValue = secondaryValue.replace('hsl(', '').replace(')', '').replace(/,/g, '');
+        }
+
+        root.style.setProperty("--secondary", secondaryValue);
+        root.style.setProperty("--accent", secondaryValue);
+      } else {
+        // Use default if not set
+        root.style.setProperty("--secondary", defaultGray);
+        root.style.setProperty("--accent", defaultGray);
+      }
+      
+      // TERTIARY COLOR (optional)
+      if (org.theme_config.tertiaryColor) {
+        let tertiaryValue = org.theme_config.tertiaryColor;
+        
+        if (tertiaryValue.startsWith('#')) {
+          tertiaryValue = hexToHSL(tertiaryValue);
+        } else if (tertiaryValue.startsWith('hsl')) {
+          tertiaryValue = tertiaryValue.replace('hsl(', '').replace(')', '').replace(/,/g, '');
+        }
+
+        root.style.setProperty("--tertiary", tertiaryValue);
+      }
     } else if (!isLoading && !org) {
       // Only reset to default gold when we're sure there's no org (after loading)
       root.style.setProperty("--gold", defaultGold);
       root.style.setProperty("--primary", defaultGold);
       root.style.setProperty("--ring", defaultGold);
+      root.style.setProperty("--secondary", defaultGray);
+      root.style.setProperty("--accent", defaultGray);
     }
   }, [org, isLoading]);
 

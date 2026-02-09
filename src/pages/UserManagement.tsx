@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TopBar } from "@/components/TopBar";
 import { CreateUserDialog } from "@/components/CreateUserDialog";
+import { TablePagination } from "@/components/TablePagination";
+import { useState, useMemo } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +41,8 @@ const UserManagement = () => {
   const { isAdmin, isLoading: rolesLoading } = useRoles();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const { data: profiles = [], isLoading: profilesLoading } = useQuery({
     queryKey: ["profiles"],
@@ -73,6 +77,11 @@ const UserManagement = () => {
       .filter((ur) => ur.user_id === profile.user_id)
       .map((ur) => ur.role as AppRole),
   }));
+
+  // Pagination logic
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedUsers = usersWithRoles.slice(startIndex, endIndex);
 
   const updateRoleMutation = useMutation({
     mutationFn: async ({ userId, role }: { userId: string; role: AppRole }) => {
@@ -197,7 +206,7 @@ const UserManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {usersWithRoles.map((user) => (
+              {paginatedUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name || "Sem nome"}</TableCell>
                   <TableCell className="text-muted-foreground">{user.email}</TableCell>
@@ -255,6 +264,16 @@ const UserManagement = () => {
               ))}
             </TableBody>
           </Table>
+          <TablePagination
+            currentPage={currentPage}
+            totalItems={usersWithRoles.length}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+          />
         </CardContent>
       </Card>
 

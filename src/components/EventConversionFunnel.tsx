@@ -50,9 +50,9 @@ export const EventConversionFunnel = () => {
     : [];
 
   return (
-    <Card className="bg-card border-border shadow-lg animate-fade-in">
+    <Card className="bg-card border-border shadow-xl animate-fade-in hover:shadow-2xl transition-shadow duration-300">
       <CardHeader>
-        <CardTitle className="text-gold">Taxa de Conversão por Etapa</CardTitle>
+        <CardTitle className="text-gold font-bold">Taxa de Conversão por Etapa</CardTitle>
       </CardHeader>
       <CardContent>
         {funnelData.length > 0 ? (
@@ -61,10 +61,13 @@ export const EventConversionFunnel = () => {
             data={funnelData}
             index="name"
             categories={["Taxa de Conversão"]}
-            colors={["blue"]}
+            colors={["yellow"]}
             valueFormatter={(number) => `${number}%`}
             layout="vertical"
-            yAxisWidth={100}
+            yAxisWidth={120}
+            showGridLines={false}
+            showAnimation={true}
+            animationDuration={800}
           />
         ) : (
           <div className="flex items-center justify-center h-[350px] text-muted-foreground animate-fade-in">

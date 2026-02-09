@@ -8,6 +8,7 @@ import { Edit, Trash2, Plus, Eye } from "lucide-react";
 import { EditSaleDialog } from "./EditSaleDialog";
 import { SaleDetailsDialog } from "./SaleDetailsDialog";
 import { SortableTableHead } from "./SortableTableHead";
+import { TablePagination } from "./TablePagination";
 import { useRoles } from "@/hooks/useRoles";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,6 +17,8 @@ export const SalesTable = () => {
   const [viewingSale, setViewingSale] = useState<any>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [sort, setSort] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const { canEditSales } = useRoles();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -78,6 +81,16 @@ export const SalesTable = () => {
     });
   }, [sales, sort]);
 
+  // Pagination logic
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedSales = sortedSales?.slice(startIndex, endIndex) || [];
+
+  // Reset to page 1 when sort changes
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [sort]);
+
   if (isLoading) {
     return <div className="text-center py-8">Carregando...</div>;
   }
@@ -108,7 +121,7 @@ export const SalesTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedSales?.map((sale) => (
+            {paginatedSales.map((sale) => (
               <TableRow key={sale.id} className="border-border">
                 <TableCell className="font-medium text-foreground">{sale.leads?.name}</TableCell>
                 <TableCell className="text-muted-foreground">{sale.products?.name}</TableCell>
@@ -160,6 +173,16 @@ export const SalesTable = () => {
             ))}
           </TableBody>
         </Table>
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={sortedSales?.length || 0}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
       </div>
 
       {(editingSale || isAdding) && (

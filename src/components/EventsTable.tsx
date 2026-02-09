@@ -7,6 +7,7 @@ import { Edit, Trash2, Eye } from "lucide-react";
 import { EditEventDialog } from "./EditEventDialog";
 import { EventDetailsDialog } from "./EventDetailsDialog";
 import { SortableTableHead } from "./SortableTableHead";
+import { TablePagination } from "./TablePagination";
 import { useRoles } from "@/hooks/useRoles";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,6 +15,8 @@ export const EventsTable = () => {
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [viewingEvent, setViewingEvent] = useState<any>(null);
   const [sort, setSort] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const { canEditEvents } = useRoles();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -68,6 +71,16 @@ export const EventsTable = () => {
     });
   }, [events, sort]);
 
+  // Pagination logic
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedEvents = sortedEvents?.slice(startIndex, endIndex) || [];
+
+  // Reset to page 1 when sort changes
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [sort]);
+
   if (isLoading) {
     return <div className="text-center py-8">Carregando...</div>;
   }
@@ -87,7 +100,7 @@ export const EventsTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedEvents?.map((event) => (
+            {paginatedEvents.map((event) => (
               <TableRow key={event.id} className="border-border">
                 <TableCell className="font-medium text-foreground">{event.name}</TableCell>
                 <TableCell className="text-muted-foreground">
@@ -130,6 +143,16 @@ export const EventsTable = () => {
             ))}
           </TableBody>
         </Table>
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={sortedEvents?.length || 0}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
       </div>
 
       {editingEvent && (

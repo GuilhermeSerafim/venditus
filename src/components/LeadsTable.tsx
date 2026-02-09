@@ -7,6 +7,7 @@ import { Edit, Trash2, Eye } from "lucide-react";
 import { EditLeadDialog } from "./EditLeadDialog";
 import { LeadDetailsDialog } from "./LeadDetailsDialog";
 import { SortableTableHead } from "./SortableTableHead";
+import { TablePagination } from "./TablePagination";
 import { useRoles } from "@/hooks/useRoles";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,6 +15,8 @@ export const LeadsTable = () => {
   const [editingLead, setEditingLead] = useState<any>(null);
   const [viewingLead, setViewingLead] = useState<any>(null);
   const [sort, setSort] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const { canEditLeads } = useRoles();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -63,6 +66,16 @@ export const LeadsTable = () => {
     });
   }, [leads, sort]);
 
+  // Pagination logic
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedLeads = sortedLeads?.slice(startIndex, endIndex) || [];
+
+  // Reset to page 1 when sort changes
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [sort]);
+
   if (isLoading) {
     return <div className="text-center py-8">Carregando...</div>;
   }
@@ -81,7 +94,7 @@ export const LeadsTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedLeads?.map((lead) => (
+            {paginatedLeads.map((lead) => (
               <TableRow key={lead.id} className="border-border">
                 <TableCell className="font-medium text-foreground">{lead.name}</TableCell>
                 <TableCell className="text-muted-foreground">{lead.email || "-"}</TableCell>
@@ -121,6 +134,16 @@ export const LeadsTable = () => {
             ))}
           </TableBody>
         </Table>
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={sortedLeads?.length || 0}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
       </div>
 
       {editingLead && (

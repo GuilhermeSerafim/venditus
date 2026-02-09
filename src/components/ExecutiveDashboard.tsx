@@ -165,13 +165,17 @@ export const ExecutiveDashboard = () => {
       </div>
 
       {/* Goal Tracker */}
-      <Card className="border-border bg-card">
+      <Card className="border-border bg-gradient-to-br from-card to-card/80 shadow-xl hover:shadow-2xl transition-all duration-300">
         <CardContent className="pt-6">
           <Flex>
-            <Text className="truncate">Meta Mensal (Mês Atual)</Text>
-            <Text>{formatCurrency(currentMonthRevenue)} / {formatCurrency(monthlyGoal)}</Text>
+            <Text className="truncate font-semibold">Meta Mensal (Mês Atual)</Text>
+            <Text className="font-bold">{formatCurrency(currentMonthRevenue)} / {formatCurrency(monthlyGoal)}</Text>
           </Flex>
-          <ProgressBar value={goalProgress} color="yellow" className="mt-3" />
+          <ProgressBar 
+            value={goalProgress} 
+            color="yellow" 
+            className="mt-3 h-3 transition-all duration-500 ease-out" 
+          />
         </CardContent>
       </Card>
 
@@ -254,9 +258,9 @@ export const ExecutiveDashboard = () => {
       {/* Charts Section - Row 2 */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Revenue Comparison Bar Chart */}
-        <Card className="border-border bg-card shadow-lg">
+        <Card className="border-border bg-card shadow-xl hover:shadow-2xl transition-shadow duration-300">
           <CardHeader>
-            <CardTitle className="text-gold">Comparativo de Receita (Período Selecionado)</CardTitle>
+            <CardTitle className="text-gold font-bold">Comparativo de Receita (Período Selecionado)</CardTitle>
           </CardHeader>
           <CardContent>
             <BarChart
@@ -266,16 +270,19 @@ export const ExecutiveDashboard = () => {
               categories={["value"]}
               colors={["amber"]}
               valueFormatter={(number) => formatCurrency(number)}
-              yAxisWidth={100}
+              yAxisWidth={120}
               showLegend={false}
+              showGridLines={false}
+              showAnimation={true}
+              animationDuration={800}
             />
           </CardContent>
         </Card>
 
-        {/* Monthly Revenue Evolution Area Chart */}
-        <Card className="border-border bg-card">
+        {/* Monthly Evolution Area Chart */}
+        <Card className="border-border bg-card shadow-xl hover:shadow-2xl transition-shadow duration-300">
           <CardHeader>
-            <CardTitle className="text-gold">Evolução da Receita Líquida (Últimos 6 Meses)</CardTitle>
+            <CardTitle className="text-gold font-bold">Evolução Mensal (Últimos 6 Meses)</CardTitle>
           </CardHeader>
           <CardContent>
             <AreaChart
@@ -283,19 +290,22 @@ export const ExecutiveDashboard = () => {
               data={monthlyRevenueData}
               index="date"
               categories={["Receita Líquida"]}
-              colors={["emerald"]}
+              colors={["blue"]}
               valueFormatter={(number) => formatCurrency(number)}
-              yAxisWidth={100}
               showLegend={false}
+              showGridLines={false}
+              showAnimation={true}
+              animationDuration={800}
+              curveType="natural"
             />
           </CardContent>
         </Card>
       </div>
 
       {/* Recent Sales Table */}
-      <Card className="border-border bg-card">
+      <Card className="border-border bg-gradient-to-br from-card to-card/80 shadow-xl hover:shadow-2xl transition-shadow duration-300">
         <CardHeader>
-          <CardTitle className="text-gold">Vendas Recentes</CardTitle>
+          <CardTitle className="text-gold font-bold">Vendas Recentes</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Loader2, Save, Upload, Image as ImageIcon } from "lucide-react";
+import { Shield, Loader2, Save, Upload, Image as ImageIcon, RotateCcw } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TopBar } from "@/components/TopBar";
 
@@ -21,6 +21,8 @@ const OrganizationSettings = () => {
 
   const [name, setName] = useState("");
   const [primaryColor, setPrimaryColor] = useState("#DAA520"); // Default gold-ish
+  const [secondaryColor, setSecondaryColor] = useState("#6B7280"); // Default gray
+  const [tertiaryColor, setTertiaryColor] = useState(""); // Optional
   const [uploading, setUploading] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
@@ -29,6 +31,12 @@ const OrganizationSettings = () => {
       setName(org.name);
       if (org.theme_config?.primaryColor) {
         setPrimaryColor(org.theme_config.primaryColor);
+      }
+      if (org.theme_config?.secondaryColor) {
+        setSecondaryColor(org.theme_config.secondaryColor);
+      }
+      if (org.theme_config?.tertiaryColor) {
+        setTertiaryColor(org.theme_config.tertiaryColor);
       }
       if (org.theme_config?.logoUrl) {
         setLogoUrl(org.theme_config.logoUrl);
@@ -106,12 +114,19 @@ const OrganizationSettings = () => {
   };
 
   const updateOrgMutation = useMutation({
-    mutationFn: async (values: { name: string; primaryColor: string }) => {
+    mutationFn: async (values: { 
+      name: string; 
+      primaryColor: string;
+      secondaryColor?: string;
+      tertiaryColor?: string;
+    }) => {
       if (!org) throw new Error("No organization found");
 
       const theme_config = {
         ...org.theme_config,
         primaryColor: values.primaryColor,
+        secondaryColor: values.secondaryColor,
+        tertiaryColor: values.tertiaryColor || null,
       };
 
       const { error } = await (supabase
@@ -133,6 +148,47 @@ const OrganizationSettings = () => {
       });
     },
   });
+
+  const handleReset = async () => {
+    if (!org) return;
+    
+    const defaultPrimary = "#DAA520"; // Default gold
+    const defaultSecondary = "#6B7280"; // Default gray
+    
+    // Update local state immediately for visual feedback
+    setPrimaryColor(defaultPrimary);
+    setSecondaryColor(defaultSecondary);
+    setTertiaryColor("");
+    
+    try {
+      // Save to database
+      const theme_config = {
+        ...org.theme_config,
+        primaryColor: defaultPrimary,
+        secondaryColor: defaultSecondary,
+        tertiaryColor: null,
+      };
+
+      const { error } = await (supabase
+        .from("organizations") as any)
+        .update({ theme_config })
+        .eq("id", org.id);
+
+      if (error) throw error;
+      
+      queryClient.invalidateQueries({ queryKey: ["organization"] });
+      toast({ 
+        title: "Cores resetadas com sucesso!", 
+        description: "As cores foram restauradas para os valores padrão." 
+      });
+    } catch (error: any) {
+      toast({ 
+        title: "Erro ao resetar cores", 
+        description: error.message, 
+        variant: "destructive" 
+      });
+    }
+  };
 
   if (rolesLoading || orgLoading) {
     return (
@@ -268,20 +324,73 @@ const OrganizationSettings = () => {
                   id="primary-color-text" 
                   value={primaryColor} 
                   onChange={(e) => setPrimaryColor(e.target.value)}
-                  placeholder="#000000"
+                  placeholder="#DAA520"
                   className="font-mono uppercase"
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                Esta cor será aplicada a botões, destaques e elementos principais da interface.
+                Botões principais, links, badges ativos, destaques.
               </p>
             </div>
 
-            <div className="pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="secondary-color">Cor Secundária</Label>
+              <div className="flex items-center gap-4">
+                <Input 
+                  id="secondary-color-picker" 
+                  type="color" 
+                  value={secondaryColor} 
+                  onChange={(e) => setSecondaryColor(e.target.value)}
+                  className="w-16 h-10 p-1 cursor-pointer"
+                />
+                <Input 
+                  id="secondary-color-text" 
+                  value={secondaryColor} 
+                  onChange={(e) => setSecondaryColor(e.target.value)}
+                  placeholder="#6B7280"
+                  className="font-mono uppercase"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Botões secundários, fundos de cards, ícones de suporte.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tertiary-color">
+                Cor Terciária <span className="text-muted-foreground text-xs">(Opcional)</span>
+              </Label>
+              <div className="flex items-center gap-4">
+                <Input 
+                  id="tertiary-color-picker" 
+                  type="color" 
+                  value={tertiaryColor || "#000000"} 
+                  onChange={(e) => setTertiaryColor(e.target.value)}
+                  className="w-16 h-10 p-1 cursor-pointer"
+                />
+                <Input 
+                  id="tertiary-color-text" 
+                  value={tertiaryColor} 
+                  onChange={(e) => setTertiaryColor(e.target.value)}
+                  placeholder="#000000 (opcional)"
+                  className="font-mono uppercase"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Badges especiais, alertas, elementos decorativos.
+              </p>
+            </div>
+
+            <div className="pt-4 flex gap-3">
               <Button 
-                onClick={() => updateOrgMutation.mutate({ name, primaryColor })}
+                onClick={() => updateOrgMutation.mutate({ 
+                  name, 
+                  primaryColor,
+                  secondaryColor,
+                  tertiaryColor: tertiaryColor || undefined
+                })}
                 disabled={updateOrgMutation.isPending}
-                className="w-full sm:w-auto"
+                className="flex-1 sm:flex-initial"
               >
                 {updateOrgMutation.isPending ? (
                   <>
@@ -294,6 +403,15 @@ const OrganizationSettings = () => {
                     Salvar Alterações
                   </>
                 )}
+              </Button>
+              
+              <Button 
+                onClick={handleReset}
+                variant="outline"
+                className="flex-1 sm:flex-initial"
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Resetar Cores
               </Button>
             </div>
           </CardContent>

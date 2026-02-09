@@ -29,27 +29,37 @@ export const LeadSourceChart = () => {
       value: count as number,
     }))
     .filter(item => item.value > 0)
-    .sort((a, b) => b.value - a.value); // Ordenar do maior para o menor
+    .sort((a, b) => b.value - a.value);
+
+  const totalLeads = chartData.reduce((sum, item) => sum + item.value, 0);
+
+  const valueFormatter = (number: number) => {
+    const percentage = ((number / totalLeads) * 100).toFixed(1);
+    return `${number} leads (${percentage}%)`;
+  };
 
   return (
-    <Card className="bg-card border-border shadow-lg animate-fade-in">
+    <Card className="bg-card border-border shadow-xl animate-fade-in hover:shadow-2xl transition-shadow duration-300">
       <CardHeader>
-        <CardTitle className="text-gold">Origem dos Leads</CardTitle>
+        <CardTitle className="text-gold font-bold">Origem dos Leads</CardTitle>
       </CardHeader>
       <CardContent>
         {chartData && chartData.length > 0 ? (
           <>
             <DonutChart
-              className="mt-6"
+              className="mt-6 h-80"
               data={chartData}
               category="value"
               index="name"
               colors={["yellow", "blue", "violet", "emerald", "amber", "red", "indigo"]}
+              valueFormatter={valueFormatter}
               showLabel={true}
               showAnimation={true}
+              showTooltip={true}
+              variant="donut"
             />
             <Legend
-              className="mt-3 flex justify-center"
+              className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2"
               categories={chartData.map(item => item.name)}
               colors={["yellow", "blue", "violet", "emerald", "amber", "red", "indigo"]}
             />

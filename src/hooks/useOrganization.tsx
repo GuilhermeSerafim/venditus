@@ -4,6 +4,8 @@ import { useAuth } from "./useAuth";
 
 export interface ThemeConfig {
   primaryColor: string;
+  secondaryColor?: string;
+  tertiaryColor?: string;
   logoUrl: string | null;
 }
 

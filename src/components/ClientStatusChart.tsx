@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { DonutChart, Legend } from "@tremor/react";
 
 interface ClientStatusChartProps {
   data: {
@@ -9,65 +9,51 @@ interface ClientStatusChartProps {
   };
 }
 
-const COLORS = {
-  newLeads: "#F2C94C", // Amarelo/Dourado
-  activeClients: "#27AE60", // Verde
-  exClients: "#95A5A6", // Cinza
-};
-
 export const ClientStatusChart = ({ data }: ClientStatusChartProps) => {
   const total = data.newLeads + data.activeClients + data.exClients;
 
   const chartData = [
-    { name: "Lead Novo", value: data.newLeads, percentage: total > 0 ? ((data.newLeads / total) * 100).toFixed(1) : 0 },
-    { name: "Cliente Ativo", value: data.activeClients, percentage: total > 0 ? ((data.activeClients / total) * 100).toFixed(1) : 0 },
-    { name: "Ex-Cliente", value: data.exClients, percentage: total > 0 ? ((data.exClients / total) * 100).toFixed(1) : 0 },
+    { name: "Lead Novo", value: data.newLeads },
+    { name: "Cliente Ativo", value: data.activeClients },
+    { name: "Ex-Cliente", value: data.exClients },
   ].filter(item => item.value > 0);
 
+  const valueFormatter = (number: number) => {
+    const percentage = total > 0 ? ((number / total) * 100).toFixed(1) : "0";
+    return `${number} clientes (${percentage}%)`;
+  };
+
   return (
-    <Card className="border-border bg-card">
+    <Card className="border-border bg-card shadow-xl hover:shadow-2xl transition-shadow duration-300">
       <CardHeader>
-        <CardTitle className="text-gold">Status dos Clientes</CardTitle>
+        <CardTitle className="text-gold font-bold">Status dos Clientes</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
+        {total > 0 ? (
+          <>
+            <DonutChart
+              className="mt-6 h-80"
               data={chartData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ percentage }) => `${percentage}%`}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {chartData.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
-                  fill={
-                    entry.name === "Lead Novo" ? COLORS.newLeads :
-                    entry.name === "Cliente Ativo" ? COLORS.activeClients :
-                    COLORS.exClients
-                  } 
-                />
-              ))}
-            </Pie>
-            <Tooltip 
-              formatter={(value: any) => `${value} clientes`}
-              contentStyle={{ 
-                backgroundColor: "hsl(var(--card))", 
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "8px"
-              }}
+              category="value"
+              index="name"
+              colors={["yellow", "emerald", "slate"]}
+              valueFormatter={valueFormatter}
+              showLabel={true}
+              showAnimation={true}
+              showTooltip={true}
+              variant="donut"
             />
-            <Legend 
-              verticalAlign="bottom" 
-              height={36}
-              formatter={(value) => <span className="text-foreground">{value}</span>}
+            <Legend
+              className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2"
+              categories={chartData.map(item => item.name)}
+              colors={["yellow", "emerald", "slate"]}
             />
-          </PieChart>
-        </ResponsiveContainer>
+          </>
+        ) : (
+          <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+            Nenhum dado disponível
+          </div>
+        )}
       </CardContent>
     </Card>
   );

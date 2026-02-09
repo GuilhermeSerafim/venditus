@@ -112,10 +112,10 @@ export const PaymentMethodsDashboard = () => {
   const donutColors = Object.keys(paymentMethodCounts).map(method => PAYMENT_METHOD_COLORS[method] || "gray");
 
   return (
-    <Card className="border-border bg-card">
+    <Card className="border-border bg-card shadow-xl hover:shadow-2xl transition-shadow duration-300">
       <CardHeader>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <CardTitle className="text-gold">Formas de Pagamento por Produto</CardTitle>
+          <CardTitle className="text-gold font-bold">Formas de Pagamento por Produto</CardTitle>
           <div className="flex gap-2">
             <Select value={period} onValueChange={setPeriod}>
               <SelectTrigger className="w-[140px] bg-background border-border">
@@ -155,15 +155,18 @@ export const PaymentMethodsDashboard = () => {
             {donutChartData.length > 0 ? (
               <>
                 <DonutChart
-                  className="mt-6"
+                  className="mt-6 h-80"
                   data={donutChartData}
                   category="value"
                   index="name"
                   colors={donutColors}
                   valueFormatter={(number) => `${number} vendas`}
+                  variant="donut"
+                  showAnimation={true}
+                  showLabel={true}
                 />
                 <Legend
-                  className="mt-3"
+                  className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2"
                   categories={donutChartData.map((d) => d.name)}
                   colors={donutColors}
                 />
@@ -186,10 +189,13 @@ export const PaymentMethodsDashboard = () => {
                 data={barChartData}
                 index="name"
                 categories={["Valor"]}
-                colors={["amber"]} 
+                colors={["emerald"]} 
                 valueFormatter={(number) => formatCurrency(number)}
-                yAxisWidth={100}
+                yAxisWidth={120}
                 layout="vertical"
+                showGridLines={false}
+                showAnimation={true}
+                animationDuration={800}
               />
             ) : (
               <div className="flex items-center justify-center h-[300px] text-muted-foreground">
