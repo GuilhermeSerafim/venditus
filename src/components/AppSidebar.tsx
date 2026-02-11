@@ -11,7 +11,8 @@ import {
   UserCog,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  LifeBuoy
 } from "lucide-react";
 import { useRoles } from "@/hooks/useRoles";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -78,6 +79,7 @@ export const AppSidebar = () => {
     { to: "/exportar", icon: <FileText className="h-5 w-5" />, label: "Exportar", show: canAccessExport },
     { to: "/usuarios", icon: <UserCog className="h-5 w-5" />, label: "Usuários", show: canAccessUserManagement },
     { to: "/configuracoes", icon: <Settings className="h-5 w-5" />, label: "Configurações", show: canAccessUserManagement }, // Admin only usually
+    { to: "/suporte", icon: <LifeBuoy className="h-5 w-5" />, label: "Suporte", show: true },
   ];
 
   return (

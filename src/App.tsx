@@ -15,6 +15,7 @@ import Products from "./pages/Products";
 import Export from "./pages/Export";
 import UserManagement from "./pages/UserManagement";
 import OrganizationSettings from "./pages/OrganizationSettings";
+import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -139,6 +140,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <OrganizationSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/suporte"
+              element={
+                <ProtectedRoute>
+                  <Support />
                 </ProtectedRoute>
               }
             />
