@@ -8,24 +8,59 @@ import { Textarea } from "@/components/ui/textarea";
 import { Mail, MessageCircle, Phone, Send } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const Support = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleFeedbackSubmit = (e: React.FormEvent) => {
+  const handleFeedbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user) {
+      toast({
+        title: "Erro ao enviar",
+        description: "Você precisa estar logado para enviar feedback.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const { error } = await supabase
+        .from('support_tickets')
+        .insert({
+          user_id: user.id,
+          subject,
+          message,
+          status: 'open'
+        });
+
+      if (error) throw error;
+
       toast({
         title: "Feedback enviado!",
         description: "Agradecemos seu contato. Analisaremos sua mensagem em breve.",
       });
-      (e.target as HTMLFormElement).reset();
-    }, 1000);
+      
+      setSubject("");
+      setMessage("");
+    } catch (error: any) {
+      console.error('Error submitting feedback:', error);
+      toast({
+        title: "Erro ao enviar",
+        description: "Ocorreu um erro ao enviar seu feedback. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -162,13 +197,21 @@ const Support = () => {
               <form onSubmit={handleFeedbackSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="subject">Assunto</Label>
-                  <Input id="subject" placeholder="Ex: Sugestão de melhoria" required />
+                  <Input 
+                    id="subject" 
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Ex: Sugestão de melhoria" 
+                    required 
+                  />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="message">Mensagem</Label>
                   <Textarea 
                     id="message" 
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                     placeholder="Descreva sua sugestão ou problema..." 
                     className="min-h-[120px] resize-none"
                     required 
