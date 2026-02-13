@@ -46,6 +46,20 @@ Welcome to the technical documentation for Venditus. This guide is designed to h
 - Definitions of business terms (Tenant, Lead, Equity).
 - Explanation of modules (CRM vs ERP).
 
+### 6. [User Roles & Permissions](./USER_ROLES.md)
+**Best for:** Admin, HR, Security.
+- Responsibilities of Admin, Sales, Finance, and Auditor.
+
+### 7. [Gamification Guide](./GAMIFICATION.md)
+**Best for:** Sales Team, Managers.
+- How to earn points (XP) in the Social Selling Game.
+- Penalties and the "Business Table" rules.
+
+### 8. [AI Agents Blueprint](./AGENTS_BLUEPRINT.md)
+**Best for:** AI Engineers, DevOps.
+- Instantiation prompts for Agents A, B, C, D.
+- Scope and security rules for each agent.
+
 ---
 
 ## 🤖 For AI Agents
