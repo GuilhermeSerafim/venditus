@@ -17,5 +17,8 @@ Sistema SaaS White-Label completo para gestão de empresas de consultoria e educ
 4.  **Financeiro**: Controle de caixa e formas de pagamento.
 5.  **Eventos**: Gestão de participantes e check-in.
 6.  **Configurações**: Personalização da marca (White-label).
+## 📚 Documentação Técnica
+Para detalhes de arquitetura, setup e desenvolvimento, consulte o [Documentation Hub](./docs/README.md).
+
 ---
 © 2026 Venditus Inc.
