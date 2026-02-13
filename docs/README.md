@@ -38,7 +38,13 @@ Welcome to the technical documentation for Venditus. This guide is designed to h
 **Best for:** DevOps, everyone setting up the project.
 - Step-by-step generic setup (`npm install`, `.env`).
 - How to run locally (`npm run dev`).
+- How to run locally (`npm run dev`).
 - Deployment instructions for Vercel/Netlify.
+
+### 5. [Glossary](./GLOSSARY.md)
+**Best for:** Support, Business, and new Developers.
+- Definitions of business terms (Tenant, Lead, Equity).
+- Explanation of modules (CRM vs ERP).
 
 ---
 
