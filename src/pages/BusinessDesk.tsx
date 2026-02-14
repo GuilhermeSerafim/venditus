@@ -26,6 +26,7 @@ import {
 import { useMesaNegocios } from "@/hooks/useMesaNegocios";
 import { AddDealDialog } from "@/components/business-desk/AddDealDialog";
 import { EditDealDialog } from "@/components/business-desk/EditDealDialog";
+import { ScoreBoard } from "@/components/business-desk/ScoreBoard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -178,6 +179,9 @@ const BusinessDesk = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* ScoreBoard */}
+          <ScoreBoard />
 
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-3">

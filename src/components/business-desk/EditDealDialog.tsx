@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useMesaNegocios } from "@/hooks/useMesaNegocios";
+import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
 import type { MesaNegocios, SituacaoNegocio } from "@/types/social-selling";
 import { format } from "date-fns";
 
@@ -30,6 +31,7 @@ interface EditDealDialogProps {
 
 export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps) => {
   const { updateDeal } = useMesaNegocios();
+  const { data: members = [] } = useOrganizationMembers();
 
   const [empresa, setEmpresa] = useState(deal.empresa);
   const [dataReuniao, setDataReuniao] = useState(
@@ -41,6 +43,7 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
   const [pixCompromisso, setPixCompromisso] = useState(deal.pix_compromisso);
   const [motivoPerda, setMotivoPerda] = useState(deal.motivo_perda || "");
   const [notas, setNotas] = useState(deal.notas || "");
+  const [responsavelId, setResponsavelId] = useState(deal.responsavel_id);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -52,6 +55,7 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
     setPixCompromisso(deal.pix_compromisso);
     setMotivoPerda(deal.motivo_perda || "");
     setNotas(deal.notas || "");
+    setResponsavelId(deal.responsavel_id);
   }, [deal]);
 
   const handleSubmit = async () => {
@@ -69,6 +73,7 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
         pix_compromisso: pixCompromisso,
         motivo_perda: situacao === "PERDIDO" ? motivoPerda || null : null,
         notas: notas || null,
+        responsavel_id: responsavelId,
       });
       onOpenChange(false);
     } catch {
@@ -96,6 +101,22 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
               value={empresa}
               onChange={(e) => setEmpresa(e.target.value)}
             />
+          </div>
+
+          <div>
+            <Label>Responsável</Label>
+            <Select value={responsavelId} onValueChange={setResponsavelId}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {members.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.name || m.email.split("@")[0]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>

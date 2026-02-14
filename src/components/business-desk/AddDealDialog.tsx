@@ -10,8 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useMesaNegocios } from "@/hooks/useMesaNegocios";
 import { useAuth } from "@/hooks/useAuth";
+import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
@@ -23,11 +31,13 @@ interface AddDealDialogProps {
 export const AddDealDialog = ({ open, onOpenChange }: AddDealDialogProps) => {
   const { createDeal } = useMesaNegocios();
   const { user } = useAuth();
+  const { data: members = [] } = useOrganizationMembers();
 
   const [empresa, setEmpresa] = useState("");
   const [dataReuniao, setDataReuniao] = useState("");
   const [valorNegocio, setValorNegocio] = useState("");
   const [notas, setNotas] = useState("");
+  const [responsavelId, setResponsavelId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get organization ID
@@ -47,7 +57,7 @@ export const AddDealDialog = ({ open, onOpenChange }: AddDealDialogProps) => {
     try {
       await createDeal.mutateAsync({
         organization_id: orgId,
-        responsavel_id: user.id,
+        responsavel_id: responsavelId || user.id,
         lead_id: null,
         empresa,
         data_reuniao: new Date(dataReuniao).toISOString(),
@@ -64,6 +74,7 @@ export const AddDealDialog = ({ open, onOpenChange }: AddDealDialogProps) => {
       setDataReuniao("");
       setValorNegocio("");
       setNotas("");
+      setResponsavelId("");
       onOpenChange(false);
     } catch {
       // Error handled by hook
@@ -91,6 +102,22 @@ export const AddDealDialog = ({ open, onOpenChange }: AddDealDialogProps) => {
               value={empresa}
               onChange={(e) => setEmpresa(e.target.value)}
             />
+          </div>
+
+          <div>
+            <Label>Responsável</Label>
+            <Select value={responsavelId} onValueChange={setResponsavelId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Eu mesmo (padrão)" />
+              </SelectTrigger>
+              <SelectContent>
+                {members.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.name || m.email.split("@")[0]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
