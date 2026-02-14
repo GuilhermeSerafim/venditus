@@ -65,7 +65,6 @@ export const MobileNav = () => {
     canAccessEvents, 
     canAccessProducts, 
     canAccessExport, 
-    canAccessExport,
     canAccessUserManagement,
     canAccessBusinessDesk
   } = useRoles();
