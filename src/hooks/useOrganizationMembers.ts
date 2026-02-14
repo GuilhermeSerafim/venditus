@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
 export interface OrgMember {
-  id: string; // profile id (same as auth.users id)
+  id: string; // profile PK
+  user_id: string; // auth.users.id — use this for FK references
   name: string | null;
   email: string;
 }
@@ -16,7 +17,7 @@ export const useOrganizationMembers = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, name, email")
+        .select("id, user_id, name, email")
         .order("name", { ascending: true });
 
       if (error) throw error;

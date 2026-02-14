@@ -27,11 +27,11 @@ export const useMesaNegocios = () => {
       if (responsavelIds.length > 0) {
         const { data: profiles } = await supabase
           .from("profiles")
-          .select("id, name, email")
-          .in("id", responsavelIds);
+          .select("user_id, name, email")
+          .in("user_id", responsavelIds);
 
         (profiles || []).forEach((p) => {
-          profilesMap[p.id] = { name: p.name, email: p.email };
+          profilesMap[p.user_id] = { name: p.name, email: p.email };
         });
       }
 
