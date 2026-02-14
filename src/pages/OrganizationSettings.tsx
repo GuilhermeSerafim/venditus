@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Shield, Loader2, Save, Upload, Image as ImageIcon, RotateCcw } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TopBar } from "@/components/TopBar";
+import { ThemeLivePreview } from "@/components/admin/ThemeLivePreview";
 
 const OrganizationSettings = () => {
   const { isAdmin, isLoading: rolesLoading } = useRoles();
@@ -257,7 +258,9 @@ const OrganizationSettings = () => {
       title="Configurações da Organização" 
       description="Personalize a aparência e dados da sua organização"
     >
-      <div className="max-w-2xl">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl">
+        {/* Settings Form */}
+        <div className="lg:col-span-2">
         <Card>
           <CardHeader>
             <CardTitle>Identidade Visual</CardTitle>
@@ -416,6 +419,18 @@ const OrganizationSettings = () => {
             </div>
           </CardContent>
         </Card>
+        </div>
+
+        {/* Live Preview */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-6">
+            <ThemeLivePreview
+              primaryColor={primaryColor}
+              secondaryColor={secondaryColor}
+              tertiaryColor={tertiaryColor}
+            />
+          </div>
+        </div>
       </div>
     </AppLayout>
   );
