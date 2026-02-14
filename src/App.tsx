@@ -16,6 +16,7 @@ import Export from "./pages/Export";
 import UserManagement from "./pages/UserManagement";
 import OrganizationSettings from "./pages/OrganizationSettings";
 import Support from "./pages/Support";
+import BusinessDesk from "./pages/BusinessDesk";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -148,6 +149,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Support />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mesa-de-negocios"
+              element={
+                <ProtectedRoute>
+                  <BusinessDesk />
                 </ProtectedRoute>
               }
             />

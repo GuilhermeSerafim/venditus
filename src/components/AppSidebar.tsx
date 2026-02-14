@@ -12,7 +12,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  LifeBuoy
+  LifeBuoy,
+  Handshake
 } from "lucide-react";
 import { useRoles } from "@/hooks/useRoles";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -76,6 +77,7 @@ export const AppSidebar = () => {
     { to: "/leads", icon: <Users className="h-5 w-5" />, label: "Leads", show: canAccessLeads },
     { to: "/eventos", icon: <Calendar className="h-5 w-5" />, label: "Eventos", show: canAccessEvents },
     { to: "/produtos", icon: <Package className="h-5 w-5" />, label: "Produtos", show: canAccessProducts },
+    { to: "/mesa-de-negocios", icon: <Handshake className="h-5 w-5" />, label: "Mesa de Negócios", show: true },
     { to: "/exportar", icon: <FileText className="h-5 w-5" />, label: "Exportar", show: canAccessExport },
     { to: "/usuarios", icon: <UserCog className="h-5 w-5" />, label: "Usuários", show: canAccessUserManagement },
     { to: "/configuracoes", icon: <Settings className="h-5 w-5" />, label: "Configurações", show: canAccessUserManagement }, // Admin only usually
