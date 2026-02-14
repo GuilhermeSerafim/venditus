@@ -49,6 +49,7 @@ export const useRoles = () => {
   const canAccessProducts = isAdmin || hasAnyRole(["comercial", "somente_leitura"]);
   const canAccessExport = isAdmin || hasAnyRole(["financeiro", "somente_leitura"]);
   const canAccessUserManagement = isAdmin;
+  const canAccessBusinessDesk = isAdmin || hasRole("comercial");
   
   // Edit permissions
   const canEditLeads = isAdmin || hasAnyRole(["comercial"]);
@@ -69,6 +70,7 @@ export const useRoles = () => {
     canAccessProducts,
     canAccessExport,
     canAccessUserManagement,
+    canAccessBusinessDesk,
     canEditLeads,
     canEditSales,
     canEditCashFlow,
