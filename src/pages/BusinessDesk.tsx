@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,19 +14,28 @@ import {
 } from "lucide-react";
 import {
   DndContext,
+  DragOverlay,
+  type DragStartEvent,
+  type DragOverEvent,
   type DragEndEvent,
-  closestCorners,
+  type CollisionDetection,
+  type UniqueIdentifier,
+  pointerWithin,
+  rectIntersection,
+  closestCenter,
+  getFirstCollision,
   PointerSensor,
   TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
 import { useMesaNegocios } from "@/hooks/useMesaNegocios";
 import { AddDealDialog } from "@/components/business-desk/AddDealDialog";
 import { DealSheet } from "@/components/business-desk/DealSheet";
 import { ScoreBoard } from "@/components/business-desk/ScoreBoard";
 import { KanbanColumn } from "@/components/business-desk/KanbanColumn";
-import type { DealWithRelations } from "@/components/business-desk/BusinessCard";
+import { DragOverlayCard, type DealWithRelations } from "@/components/business-desk/BusinessCard";
 import type { SituacaoNegocio } from "@/types/social-selling";
 
 const COLUMNS: { key: SituacaoNegocio; label: string; icon: React.ReactNode; color: string; bgColor: string }[] = [
@@ -63,24 +72,175 @@ const BusinessDesk = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterSituacao, setFilterSituacao] = useState<string>("all");
 
-  // DnD sensors — require movement before activating (prevents accidental drags / click conflicts)
+  // ─── DnD state ──────────────────────────────────────────────────────────
+  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const lastOverId = useRef<UniqueIdentifier | null>(null);
+
+  // Local column ordering — { NEGOCIANDO: [id1, id2], GANHO: [...], PERDIDO: [...] }
+  const [columnItems, setColumnItems] = useState<Record<SituacaoNegocio, string[]>>({
+    NEGOCIANDO: [],
+    GANHO: [],
+    PERDIDO: [],
+  });
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
   );
 
+  // ─── Filtered deals + lookup map ───────────────────────────────────────
   const filteredDeals = useMemo(() => {
     return deals.filter((deal) => {
       const matchesSearch =
         searchQuery === "" ||
         deal.empresa.toLowerCase().includes(searchQuery.toLowerCase()) ||
         deal.profiles?.name?.toLowerCase().includes(searchQuery.toLowerCase());
-
       const matchesSituacao = filterSituacao === "all" || deal.situacao === filterSituacao;
-
       return matchesSearch && matchesSituacao;
     });
   }, [deals, searchQuery, filterSituacao]);
+
+  const dealsMap = useMemo(() => {
+    const map: Record<string, DealWithRelations> = {};
+    deals.forEach((d) => { map[d.id] = d; });
+    return map;
+  }, [deals]);
+
+  // Sync columnItems from server data (skip during drag)
+  useEffect(() => {
+    if (activeId) return;
+    const grouped: Record<SituacaoNegocio, string[]> = { NEGOCIANDO: [], GANHO: [], PERDIDO: [] };
+    filteredDeals.forEach((deal) => {
+      grouped[deal.situacao]?.push(deal.id);
+    });
+    setColumnItems(grouped);
+  }, [filteredDeals, activeId]);
+
+  // ─── Container helpers ─────────────────────────────────────────────────
+  const findContainer = useCallback(
+    (id: UniqueIdentifier): SituacaoNegocio | undefined => {
+      if (id in columnItems) return id as SituacaoNegocio;
+      return (Object.keys(columnItems) as SituacaoNegocio[]).find((key) =>
+        columnItems[key].includes(id as string)
+      );
+    },
+    [columnItems]
+  );
+
+  // ─── Custom collision detection (multi-container) ──────────────────────
+  const collisionDetectionStrategy: CollisionDetection = useCallback(
+    (args) => {
+      // If dragging over a column directly, prioritize that
+      const pointerCollisions = pointerWithin(args);
+      const intersections =
+        pointerCollisions.length > 0 ? pointerCollisions : rectIntersection(args);
+
+      let overId = getFirstCollision(intersections, "id");
+
+      if (overId != null) {
+        // If hovering over a column container, find closest card inside
+        if (overId in columnItems) {
+          const containerItems = columnItems[overId as SituacaoNegocio];
+          if (containerItems.length > 0) {
+            const closest = closestCenter({
+              ...args,
+              droppableContainers: args.droppableContainers.filter(
+                (c) => c.id !== overId && containerItems.includes(c.id as string)
+              ),
+            });
+            if (closest.length > 0) {
+              overId = closest[0].id;
+            }
+          }
+        }
+        lastOverId.current = overId;
+        return [{ id: overId }];
+      }
+
+      // Fallback to last known position
+      if (lastOverId.current) {
+        return [{ id: lastOverId.current }];
+      }
+      return [];
+    },
+    [columnItems]
+  );
+
+  // ─── Drag handlers ─────────────────────────────────────────────────────
+  const handleDragStart = ({ active }: DragStartEvent) => {
+    setActiveId(active.id);
+  };
+
+  const handleDragOver = ({ active, over }: DragOverEvent) => {
+    if (!over) return;
+
+    const activeContainer = findContainer(active.id);
+    const overContainer = findContainer(over.id);
+
+    if (!activeContainer || !overContainer || activeContainer === overContainer) return;
+
+    // Move item from one column to another in local state
+    setColumnItems((prev) => {
+      const activeItems = [...prev[activeContainer]];
+      const overItems = [...prev[overContainer]];
+
+      const activeIndex = activeItems.indexOf(active.id as string);
+      if (activeIndex < 0) return prev;
+
+      activeItems.splice(activeIndex, 1);
+
+      // Determine insertion index
+      const overIndex = overItems.indexOf(over.id as string);
+      const newIndex = overIndex >= 0 ? overIndex : overItems.length;
+      overItems.splice(newIndex, 0, active.id as string);
+
+      return {
+        ...prev,
+        [activeContainer]: activeItems,
+        [overContainer]: overItems,
+      };
+    });
+  };
+
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over) {
+      setActiveId(null);
+      return;
+    }
+
+    const activeContainer = findContainer(active.id);
+    const overContainer = findContainer(over.id);
+
+    if (activeContainer && overContainer && activeContainer === overContainer) {
+      // Within-container reorder
+      const items = columnItems[activeContainer];
+      const oldIndex = items.indexOf(active.id as string);
+      const newIndex = items.indexOf(over.id as string);
+
+      if (oldIndex !== newIndex && newIndex >= 0) {
+        setColumnItems((prev) => ({
+          ...prev,
+          [activeContainer]: arrayMove(prev[activeContainer], oldIndex, newIndex),
+        }));
+      }
+    }
+
+    // Persist status change if column changed
+    const deal = dealsMap[active.id as string];
+    const finalContainer = findContainer(active.id);
+    if (deal && finalContainer && deal.situacao !== finalContainer) {
+      updateDeal.mutate({ id: deal.id, situacao: finalContainer });
+    }
+
+    setActiveId(null);
+  };
+
+  const handleDragCancel = () => {
+    setActiveId(null);
+  };
+
+  // Active deal for DragOverlay
+  const activeDeal = activeId ? dealsMap[activeId as string] : null;
 
   const handleToggleCompareceu = (dealId: string, current: boolean) => {
     updateDeal.mutate({ id: dealId, compareceu: !current });
@@ -90,38 +250,7 @@ const BusinessDesk = () => {
     updateDeal.mutate({ id: dealId, pix_compromisso: !current });
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over) return;
-
-    const dealId = active.id as string;
-    const targetColumn = over.id as string;
-
-    // Only handle drops on column droppables
-    const validColumns: SituacaoNegocio[] = ["NEGOCIANDO", "GANHO", "PERDIDO"];
-    if (!validColumns.includes(targetColumn as SituacaoNegocio)) return;
-
-    // Skip if same column
-    const deal = deals.find((d) => d.id === dealId);
-    if (!deal || deal.situacao === targetColumn) return;
-
-    // Optimistic update fires instantly via the hook
-    updateDeal.mutate({ id: dealId, situacao: targetColumn as SituacaoNegocio });
-  };
-
-  const dealsByStatus = useMemo(() => {
-    const grouped: Record<SituacaoNegocio, typeof filteredDeals> = {
-      NEGOCIANDO: [],
-      GANHO: [],
-      PERDIDO: [],
-    };
-    filteredDeals.forEach((deal) => {
-      grouped[deal.situacao]?.push(deal);
-    });
-    return grouped;
-  }, [filteredDeals]);
-
-  // KPI metrics
+  // ─── KPI metrics ──────────────────────────────────────────────────────
   const totalDeals = deals.length;
   const totalNegociando = deals.filter((d) => d.situacao === "NEGOCIANDO").length;
   const totalGanho = deals.filter((d) => d.situacao === "GANHO").length;
@@ -206,26 +335,35 @@ const BusinessDesk = () => {
         ) : (
           <DndContext
             sensors={sensors}
-            collisionDetection={closestCorners}
+            collisionDetection={collisionDetectionStrategy}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
           >
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {COLUMNS.map((column) => (
                 <KanbanColumn
                   key={column.key}
                   column={column}
-                  deals={dealsByStatus[column.key]}
+                  itemIds={columnItems[column.key]}
+                  dealsMap={dealsMap}
                   onCardClick={setSelectedDeal}
                   onToggleCompareceu={handleToggleCompareceu}
                   onTogglePix={handleTogglePix}
                 />
               ))}
             </div>
+
+            {/* DragOverlay — rendered outside the list, follows cursor */}
+            <DragOverlay dropAnimation={{ duration: 200, easing: "ease" }}>
+              {activeDeal ? <DragOverlayCard deal={activeDeal} /> : null}
+            </DragOverlay>
           </DndContext>
         )}
       </div>
 
-      {/* Side-peek Sheet */}
+      {/* Side-peek Sheet + Add dialog */}
       <AddDealDialog open={isAddOpen} onOpenChange={setIsAddOpen} />
       <DealSheet
         deal={selectedDeal}
