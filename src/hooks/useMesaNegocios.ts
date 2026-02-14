@@ -78,9 +78,21 @@ export const useMesaNegocios = () => {
       if (error) throw error;
       return data;
     },
+    // Optimistic update — move card instantly before server confirms
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: ["mesa_negocios"] });
+      const previousDeals = queryClient.getQueryData(["mesa_negocios"]);
+
+      queryClient.setQueryData(["mesa_negocios"], (old: any[] | undefined) => {
+        if (!old) return old;
+        return old.map((deal: any) =>
+          deal.id === variables.id ? { ...deal, ...variables } : deal
+        );
+      });
+
+      return { previousDeals };
+    },
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["mesa_negocios"] });
-      
       if (variables.compareceu === true) {
         toast({ title: "Comparecimento confirmado!", description: "+30 pontos de bônus!" });
       } else if (variables.situacao === "GANHO") {
@@ -91,8 +103,15 @@ export const useMesaNegocios = () => {
         toast({ title: "Atualizado", description: "Negócio atualizado com sucesso." });
       }
     },
-    onError: (error: any) => {
+    onError: (error: any, _variables, context) => {
+      // Rollback optimistic update on error
+      if (context?.previousDeals) {
+        queryClient.setQueryData(["mesa_negocios"], context.previousDeals);
+      }
       toast({ title: "Erro", description: error.message, variant: "destructive" });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["mesa_negocios"] });
     },
   });
 
