@@ -12,13 +12,33 @@ export const useMesaNegocios = () => {
   const query = useQuery({
     queryKey: ["mesa_negocios"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch deals (without profiles join — FK points to auth.users, not profiles)
+      const { data: deals, error } = await supabase
         .from("mesa_negocios")
-        .select("*, profiles!mesa_negocios_responsavel_id_fkey(name, email), leads(name)")
+        .select("*, leads(name)")
         .order("data_reuniao", { ascending: false });
 
       if (error) throw error;
-      return data as (MesaNegocios & {
+
+      // Fetch profile names for all responsavel_ids
+      const responsavelIds = [...new Set((deals || []).map((d) => d.responsavel_id))];
+      let profilesMap: Record<string, { name: string | null; email: string }> = {};
+
+      if (responsavelIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, name, email")
+          .in("id", responsavelIds);
+
+        (profiles || []).forEach((p) => {
+          profilesMap[p.id] = { name: p.name, email: p.email };
+        });
+      }
+
+      return (deals || []).map((deal) => ({
+        ...deal,
+        profiles: profilesMap[deal.responsavel_id] || null,
+      })) as (MesaNegocios & {
         profiles: { name: string | null; email: string } | null;
         leads: { name: string } | null;
       })[];
