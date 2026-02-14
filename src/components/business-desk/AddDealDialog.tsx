@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { useMesaNegocios } from "@/hooks/useMesaNegocios";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
@@ -34,7 +35,7 @@ export const AddDealDialog = ({ open, onOpenChange }: AddDealDialogProps) => {
   const { data: members = [] } = useOrganizationMembers();
 
   const [empresa, setEmpresa] = useState("");
-  const [dataReuniao, setDataReuniao] = useState("");
+  const [dataReuniao, setDataReuniao] = useState<Date | undefined>();
   const [valorNegocio, setValorNegocio] = useState("");
   const [notas, setNotas] = useState("");
   const [responsavelId, setResponsavelId] = useState("");
@@ -60,7 +61,7 @@ export const AddDealDialog = ({ open, onOpenChange }: AddDealDialogProps) => {
         responsavel_id: responsavelId || user.id,
         lead_id: null,
         empresa,
-        data_reuniao: new Date(dataReuniao).toISOString(),
+        data_reuniao: dataReuniao.toISOString(),
         compareceu: false,
         pix_compromisso: false,
         situacao: "NEGOCIANDO",
@@ -71,7 +72,7 @@ export const AddDealDialog = ({ open, onOpenChange }: AddDealDialogProps) => {
 
       // Reset form
       setEmpresa("");
-      setDataReuniao("");
+      setDataReuniao(undefined);
       setValorNegocio("");
       setNotas("");
       setResponsavelId("");
@@ -112,7 +113,7 @@ export const AddDealDialog = ({ open, onOpenChange }: AddDealDialogProps) => {
               </SelectTrigger>
               <SelectContent>
                 {members.map((m) => (
-                  <SelectItem key={m.id} value={m.id}>
+                  <SelectItem key={m.user_id} value={m.user_id}>
                     {m.name || m.email.split("@")[0]}
                   </SelectItem>
                 ))}
@@ -121,13 +122,10 @@ export const AddDealDialog = ({ open, onOpenChange }: AddDealDialogProps) => {
           </div>
 
           <div>
-            <Label htmlFor="data_reuniao">Data da Reunião *</Label>
-            <Input
-              id="data_reuniao"
-              type="datetime-local"
-              value={dataReuniao}
-              onChange={(e) => setDataReuniao(e.target.value)}
-            />
+            <Label>Data da Reunião *</Label>
+            <div className="pt-1">
+              <DateTimePicker date={dataReuniao} setDate={setDataReuniao} />
+            </div>
           </div>
 
           <div>

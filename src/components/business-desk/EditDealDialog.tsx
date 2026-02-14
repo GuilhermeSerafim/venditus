@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { useMesaNegocios } from "@/hooks/useMesaNegocios";
 import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
 import type { MesaNegocios, SituacaoNegocio } from "@/types/social-selling";
@@ -34,8 +35,8 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
   const { data: members = [] } = useOrganizationMembers();
 
   const [empresa, setEmpresa] = useState(deal.empresa);
-  const [dataReuniao, setDataReuniao] = useState(
-    format(new Date(deal.data_reuniao), "yyyy-MM-dd'T'HH:mm")
+  const [dataReuniao, setDataReuniao] = useState<Date | undefined>(
+    deal.data_reuniao ? new Date(deal.data_reuniao) : undefined
   );
   const [valorNegocio, setValorNegocio] = useState(String(deal.valor_negocio || ""));
   const [situacao, setSituacao] = useState<SituacaoNegocio>(deal.situacao);
@@ -48,7 +49,7 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
 
   useEffect(() => {
     setEmpresa(deal.empresa);
-    setDataReuniao(format(new Date(deal.data_reuniao), "yyyy-MM-dd'T'HH:mm"));
+    setDataReuniao(deal.data_reuniao ? new Date(deal.data_reuniao) : undefined);
     setValorNegocio(String(deal.valor_negocio || ""));
     setSituacao(deal.situacao);
     setCompareceu(deal.compareceu);
@@ -66,7 +67,7 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
       await updateDeal.mutateAsync({
         id: deal.id,
         empresa,
-        data_reuniao: new Date(dataReuniao).toISOString(),
+        data_reuniao: dataReuniao.toISOString(),
         valor_negocio: Number(valorNegocio) || 0,
         situacao,
         compareceu,
@@ -111,7 +112,7 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
               </SelectTrigger>
               <SelectContent>
                 {members.map((m) => (
-                  <SelectItem key={m.id} value={m.id}>
+                  <SelectItem key={m.user_id} value={m.user_id}>
                     {m.name || m.email.split("@")[0]}
                   </SelectItem>
                 ))}
@@ -120,13 +121,10 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
           </div>
 
           <div>
-            <Label htmlFor="edit-data">Data da Reunião *</Label>
-            <Input
-              id="edit-data"
-              type="datetime-local"
-              value={dataReuniao}
-              onChange={(e) => setDataReuniao(e.target.value)}
-            />
+            <Label>Data da Reunião *</Label>
+            <div className="pt-1">
+              <DateTimePicker date={dataReuniao} setDate={setDataReuniao} />
+            </div>
           </div>
 
           <div>
