@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { AppRole } from "@/hooks/useRoles";
+import { RoleMultiSelect } from "@/components/RoleMultiSelect";
 
 interface AddUserDialogProps {
   open: boolean;
@@ -20,10 +21,10 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<AppRole>("somente_leitura");
+  const [roles, setRoles] = useState<AppRole[]>(["somente_leitura"]);
 
   const createUserMutation = useMutation({
-    mutationFn: async (data: { name: string; email: string; password: string; role: AppRole }) => {
+    mutationFn: async (data: { name: string; email: string; password: string; roles: AppRole[] }) => {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !session) {
@@ -65,7 +66,7 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
       setName("");
       setEmail("");
       setPassword("");
-      setRole("somente_leitura");
+      setRoles(["somente_leitura"]);
       onOpenChange(false);
     },
     onError: (error: Error) => {
@@ -80,16 +81,16 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password || !role) {
+    if (!email || !password || roles.length === 0) {
       toast({ 
         title: "Campos obrigatórios", 
-        description: "Preencha todos os campos obrigatórios",
+        description: "Preencha todos os campos obrigatórios e selecione pelo menos uma função.",
         variant: "destructive" 
       });
       return;
     }
 
-    createUserMutation.mutate({ name, email, password, role });
+    createUserMutation.mutate({ name, email, password, roles });
   };
 
   return (
@@ -136,18 +137,8 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
             <p className="text-xs text-muted-foreground">Mínimo de 6 caracteres</p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="role">Função *</Label>
-            <Select value={role} onValueChange={(value) => setRole(value as AppRole)}>
-              <SelectTrigger className="bg-background">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="comercial">Comercial</SelectItem>
-                <SelectItem value="financeiro">Financeiro</SelectItem>
-                <SelectItem value="somente_leitura">Somente Leitura</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label htmlFor="role">Funções *</Label>
+            <RoleMultiSelect selectedRoles={roles} onChange={setRoles} />
           </div>
           <div className="flex justify-end gap-2 pt-4">
             <Button

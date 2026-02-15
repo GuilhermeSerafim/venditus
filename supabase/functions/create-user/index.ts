@@ -59,17 +59,17 @@ Deno.serve(async (req) => {
       throw new Error(`Unauthorized: ${userError?.message || 'User not found'}`)
     }
 
-    const { data: roles, error: rolesError } = await supabaseClient
+    const { data: currentUserRoles, error: rolesError } = await supabaseClient
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .single()
 
-    if (rolesError || roles?.role !== 'admin') {
+    if (rolesError || currentUserRoles?.role !== 'admin') {
       throw new Error('Forbidden - only admins can create users')
     }
 
-    const { email, password, name, role, organization_id } = await req.json()
+    const { email, password, name, role, roles, organization_id } = await req.json()
 
     // Initialize admin client to perform the action
     const supabaseAdmin = createClient(
@@ -86,11 +86,21 @@ Deno.serve(async (req) => {
 
     if (createError) throw createError
 
-    // Assign role
-    if (role) {
+    // Normalize roles to an array
+    const rolesToAssign = roles || (role ? [role] : []);
+
+    // Assign roles
+    if (rolesToAssign.length > 0) {
+        // Insert multiple roles
         const { error: roleError } = await supabaseAdmin
         .from('user_roles')
-        .insert({ user_id: newUser.user.id, role, organization_id })
+        .insert(
+            rolesToAssign.map((r: string) => ({
+                user_id: newUser.user.id,
+                role: r,
+                organization_id
+            }))
+        )
         
         if (roleError) {
              // Rollback user creation if role assignment fails

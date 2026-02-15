@@ -2,7 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
-export type AppRole = "admin" | "comercial" | "financeiro" | "somente_leitura";
+export type AppRole = "admin" | "comercial" | "financeiro" | "marketing" | "somente_leitura";
+
+export const ROLE_LABELS: Record<AppRole, string> = {
+  admin: "Admin",
+  comercial: "Comercial",
+  financeiro: "Financeiro",
+  marketing: "Marketing",
+  somente_leitura: "Somente Leitura",
+};
+
+export const ALL_ROLES: AppRole[] = ["admin", "comercial", "financeiro", "marketing", "somente_leitura"];
 
 interface UserRole {
   role: AppRole;
@@ -41,17 +51,17 @@ export const useRoles = () => {
 
   const isAdmin = hasRole("admin");
 
-  // Menu permissions - somente_leitura can view all menus
-  const canAccessLeads = isAdmin || hasAnyRole(["comercial", "somente_leitura"]);
+  // Menu permissions - somente_leitura can view all menus, marketing can view leads/events/products
+  const canAccessLeads = isAdmin || hasAnyRole(["comercial", "marketing", "somente_leitura"]);
   const canAccessSales = isAdmin || hasAnyRole(["comercial", "financeiro", "somente_leitura"]);
   const canAccessCashFlow = isAdmin || hasAnyRole(["financeiro", "somente_leitura"]);
-  const canAccessEvents = isAdmin || hasAnyRole(["comercial", "somente_leitura"]);
-  const canAccessProducts = isAdmin || hasAnyRole(["comercial", "somente_leitura"]);
+  const canAccessEvents = isAdmin || hasAnyRole(["comercial", "marketing", "somente_leitura"]);
+  const canAccessProducts = isAdmin || hasAnyRole(["comercial", "marketing", "somente_leitura"]);
   const canAccessExport = isAdmin || hasAnyRole(["financeiro", "somente_leitura"]);
   const canAccessUserManagement = isAdmin;
   const canAccessBusinessDesk = isAdmin || hasRole("comercial");
   
-  // Edit permissions
+  // Edit permissions (marketing has no edit permissions)
   const canEditLeads = isAdmin || hasAnyRole(["comercial"]);
   const canEditSales = isAdmin || hasAnyRole(["comercial", "financeiro"]);
   const canEditCashFlow = isAdmin || hasAnyRole(["financeiro"]);

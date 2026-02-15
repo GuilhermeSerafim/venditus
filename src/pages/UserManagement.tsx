@@ -1,10 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
-import { useRoles, AppRole } from "@/hooks/useRoles";
+import { useRoles, AppRole, ROLE_LABELS } from "@/hooks/useRoles";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Trash2, Loader2 } from "lucide-react";
@@ -15,6 +14,7 @@ import { CreateUserDialog } from "@/components/CreateUserDialog";
 import { TablePagination } from "@/components/TablePagination";
 import { useOrganization } from "@/hooks/useOrganization";
 import { useState, useMemo } from "react";
+import { RoleMultiSelect } from "@/components/RoleMultiSelect";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,6 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Profile {
   id: string;
@@ -39,6 +40,7 @@ interface UserWithRoles extends Profile {
 }
 
 const UserManagement = () => {
+  const { user: currentUser } = useAuth();
   const { isAdmin, isLoading: rolesLoading } = useRoles();
   const { data: organization } = useOrganization();
   const { toast } = useToast();
@@ -85,8 +87,11 @@ const UserManagement = () => {
   const endIndex = startIndex + pageSize;
   const paginatedUsers = usersWithRoles.slice(startIndex, endIndex);
 
-  const updateRoleMutation = useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: AppRole }) => {
+  const updateRolesMutation = useMutation({
+    mutationFn: async ({ userId, roles }: { userId: string; roles: AppRole[] }) => {
+      if (!organization?.id) throw new Error("Organization ID not found");
+
+      // First delete all existing roles
       const { error: deleteError } = await supabase
         .from("user_roles")
         .delete()
@@ -94,20 +99,27 @@ const UserManagement = () => {
       
       if (deleteError) throw deleteError;
 
-      if (!organization?.id) throw new Error("Organization ID not found");
-
-      const { error: insertError } = await supabase
-        .from("user_roles")
-        .insert({ user_id: userId, role, organization_id: organization.id });
-      
-      if (insertError) throw insertError;
+      if (roles.length > 0) {
+        // Then insert new roles
+        const { error: insertError } = await supabase
+          .from("user_roles")
+          .insert(
+            roles.map(role => ({
+              user_id: userId,
+              role,
+              organization_id: organization.id
+            }))
+          );
+        
+        if (insertError) throw insertError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["all-user-roles"] });
-      toast({ title: "Função atualizada com sucesso" });
+      toast({ title: "Funções atualizadas com sucesso" });
     },
     onError: () => {
-      toast({ title: "Erro ao atualizar função", variant: "destructive" });
+      toast({ title: "Erro ao atualizar funções", variant: "destructive" });
     },
   });
 
@@ -134,21 +146,17 @@ const UserManagement = () => {
     },
   });
 
-  const getRoleBadge = (roles: AppRole[]) => {
+  const getRoleBadges = (roles: AppRole[]) => {
     if (roles.length === 0) return <Badge variant="outline">Sem função</Badge>;
     
-    const roleLabels: Record<AppRole, string> = {
-      admin: "Admin",
-      comercial: "Comercial",
-      financeiro: "Financeiro",
-      somente_leitura: "Somente Leitura",
-    };
-
-    const role = roles[0];
     return (
-      <Badge className="bg-gold text-primary-foreground font-medium">
-        {roleLabels[role]}
-      </Badge>
+      <div className="flex flex-wrap gap-1">
+        {roles.map(role => (
+          <Badge key={role} className="bg-gold text-primary-foreground font-medium whitespace-nowrap">
+            {ROLE_LABELS[role]}
+          </Badge>
+        ))}
+      </div>
     );
   };
 
@@ -210,30 +218,28 @@ const UserManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedUsers.map((user) => (
-                <TableRow key={user.id}>
+              {paginatedUsers.map((user) => {
+                const isCurrentUser = user.user_id === currentUser?.id;
+                
+                return (
+                <TableRow 
+                  key={user.id} 
+                  className="cursor-pointer hover:bg-muted/50 transition-colors group"
+                >
                   <TableCell className="font-medium">{user.name || "Sem nome"}</TableCell>
                   <TableCell className="text-muted-foreground">{user.email}</TableCell>
-                  <TableCell>{getRoleBadge(user.roles)}</TableCell>
-                  <TableCell>
-                    <Select
-                      value={user.roles[0] || ""}
-                      onValueChange={(value) =>
-                        updateRoleMutation.mutate({ userId: user.user_id, role: value as AppRole })
+                  <TableCell>{getRoleBadges(user.roles)}</TableCell>
+                  <TableCell className="min-w-[250px]">
+                    <RoleMultiSelect
+                      selectedRoles={user.roles}
+                      onChange={(newRoles) => 
+                        updateRolesMutation.mutate({ userId: user.user_id, roles: newRoles })
                       }
-                    >
-                      <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Selecione uma função" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="comercial">Comercial</SelectItem>
-                        <SelectItem value="financeiro">Financeiro</SelectItem>
-                        <SelectItem value="somente_leitura">Somente Leitura</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      disabled={isCurrentUser}
+                    />
                   </TableCell>
                   <TableCell className="text-right">
+                    {!isCurrentUser && (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button 
@@ -263,9 +269,11 @@ const UserManagement = () => {
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
+                    )}
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
           <TablePagination
@@ -303,6 +311,12 @@ const UserManagement = () => {
               <h4 className="font-semibold text-gold mb-2">Financeiro</h4>
               <p className="text-sm text-muted-foreground">
                 Acesso a: Vendas, Caixa e Exportar (com permissão de edição)
+              </p>
+            </div>
+            <div className="p-4 rounded-lg bg-muted/50">
+              <h4 className="font-semibold text-gold mb-2">Marketing</h4>
+              <p className="text-sm text-muted-foreground">
+                Acesso de visualização a: Leads, Eventos e Produtos. Sem permissão de edição.
               </p>
             </div>
             <div className="p-4 rounded-lg bg-muted/50">

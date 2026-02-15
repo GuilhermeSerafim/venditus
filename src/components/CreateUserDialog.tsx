@@ -27,7 +27,7 @@ export const CreateUserDialog = ({ onUserCreated }: CreateUserDialogProps) => {
       email: "",
       password: "",
       name: "",
-      role: "comercial" as AppRole,
+      roles: ["comercial"] as AppRole[],
     },
   });
 
@@ -75,7 +75,7 @@ export const CreateUserDialog = ({ onUserCreated }: CreateUserDialogProps) => {
       console.log('📤 Calling create-user function with:', {
         email: values.email,
         name: values.name,
-        role: values.role,
+        roles: values.roles,
         organization_id: org?.id,
       });
 
@@ -180,23 +180,16 @@ export const CreateUserDialog = ({ onUserCreated }: CreateUserDialogProps) => {
             />
             <FormField
               control={form.control}
-              name="role"
+              name="roles"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Função</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="bg-background border-border">
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="comercial">Comercial</SelectItem>
-                      <SelectItem value="financeiro">Financeiro</SelectItem>
-                      <SelectItem value="somente_leitura">Somente Leitura</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormLabel>Funções</FormLabel>
+                  <FormControl>
+                    <RoleMultiSelectRoleWrapper 
+                      value={field.value} 
+                      onChange={field.onChange} 
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -220,4 +213,11 @@ export const CreateUserDialog = ({ onUserCreated }: CreateUserDialogProps) => {
       </DialogContent>
     </Dialog>
   );
+};
+
+// Wrapper simple component to bridge between hook-form and RoleMultiSelect
+import { RoleMultiSelect } from "@/components/RoleMultiSelect";
+
+const RoleMultiSelectRoleWrapper = ({ value, onChange }: { value: AppRole[], onChange: (val: AppRole[]) => void }) => {
+  return <RoleMultiSelect selectedRoles={value} onChange={onChange} />;
 };
