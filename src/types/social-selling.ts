@@ -10,6 +10,8 @@ export interface MesaNegocios {
     data_reuniao: string; // ISO date string
     compareceu: boolean;
     pix_compromisso: boolean;
+    qualificada: boolean;
+    proposta_enviada: boolean;
     situacao: SituacaoNegocio;
     motivo_perda: string | null;
     valor_negocio: number;
@@ -53,6 +55,11 @@ export interface UserDailyActivity {
     activity_date: string; // Date string (YYYY-MM-DD)
     posts_count: number;
     interactions_count: number;
+    ns_contato: boolean;
+    followup_dia: boolean;
+    analise_stories: boolean;
+    rastros_interesse: boolean;
+    registro_crm: boolean;
     completed: boolean;
     created_at: string;
 }

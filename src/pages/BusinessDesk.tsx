@@ -246,8 +246,14 @@ const BusinessDesk = () => {
     updateDeal.mutate({ id: dealId, compareceu: !current });
   };
 
-  const handleTogglePix = (dealId: string, current: boolean) => {
-    updateDeal.mutate({ id: dealId, pix_compromisso: !current });
+
+
+  const handleToggleQualificada = (dealId: string, current: boolean) => {
+    updateDeal.mutate({ id: dealId, qualificada: !current });
+  };
+
+  const handleToggleProposta = (dealId: string, current: boolean) => {
+    updateDeal.mutate({ id: dealId, proposta_enviada: !current });
   };
 
   // ─── KPI metrics ──────────────────────────────────────────────────────
@@ -350,7 +356,9 @@ const BusinessDesk = () => {
                   dealsMap={dealsMap}
                   onCardClick={setSelectedDeal}
                   onToggleCompareceu={handleToggleCompareceu}
-                  onTogglePix={handleTogglePix}
+
+                  onToggleQualificada={handleToggleQualificada}
+                  onToggleProposta={handleToggleProposta}
                 />
               ))}
             </div>

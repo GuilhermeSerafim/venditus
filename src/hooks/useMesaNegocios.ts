@@ -59,6 +59,7 @@ export const useMesaNegocios = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mesa_negocios"] });
+      queryClient.invalidateQueries({ queryKey: ["user_scores"] });
       toast({ title: "Negócio criado", description: "Reunião agendada com sucesso! (+20 pontos)" });
     },
     onError: (error: any) => {
@@ -112,6 +113,7 @@ export const useMesaNegocios = () => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["mesa_negocios"] });
+      queryClient.invalidateQueries({ queryKey: ["user_scores"] });
     },
   });
 

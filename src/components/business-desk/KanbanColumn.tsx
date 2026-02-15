@@ -30,7 +30,8 @@ interface KanbanColumnProps {
   dealsMap: Record<string, DealWithRelations>;
   onCardClick: (deal: DealWithRelations) => void;
   onToggleCompareceu: (dealId: string, current: boolean) => void;
-  onTogglePix: (dealId: string, current: boolean) => void;
+  onToggleQualificada: (dealId: string, current: boolean) => void;
+  onToggleProposta: (dealId: string, current: boolean) => void;
 }
 
 export const KanbanColumn = ({
@@ -39,7 +40,8 @@ export const KanbanColumn = ({
   dealsMap,
   onCardClick,
   onToggleCompareceu,
-  onTogglePix,
+  onToggleQualificada,
+  onToggleProposta,
 }: KanbanColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({ id: column.key });
   const { active, over } = useDndContext();
@@ -120,7 +122,8 @@ export const KanbanColumn = ({
                         deal={deal}
                         onCardClick={onCardClick}
                         onToggleCompareceu={onToggleCompareceu}
-                        onTogglePix={onTogglePix}
+                        onToggleQualificada={onToggleQualificada}
+                        onToggleProposta={onToggleProposta}
                       />
                     </div>
                   );

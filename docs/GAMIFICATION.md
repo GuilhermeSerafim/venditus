@@ -95,6 +95,18 @@ Este documento define as regras oficiais do jogo de Social Selling do Venditus. 
 | **Falta de registro / controle** | -10 pts |
 | **Reincidência na mesma semana** | Penalidade em dobro |
 
+### Estorno (Reversão de Pontos)
+> Desmarcar uma ação reverte os pontos. Isso garante que o score reflita o estado real.
+
+| Ação revertida | Estorno |
+|----------------|---------|
+| Desmarcar **Presente** | -30 pts |
+| Desmarcar **Qualificada** | -40 pts |
+| Desmarcar **Proposta** | -60 pts |
+| Deal sair de **GANHO** → NEGOCIANDO/PERDIDO | -100 pts |
+
+> **Nota:** Após estorno, a ação pode ser remarcada e os pontos serão concedidos novamente.
+
 ---
 
 ## 🌟 Bônus Estratégicos (Não Diários)
