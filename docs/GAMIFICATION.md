@@ -104,6 +104,7 @@ Este documento define as regras oficiais do jogo de Social Selling do Venditus. 
 | Desmarcar **Qualificada** | -40 pts |
 | Desmarcar **Proposta** | -60 pts |
 | Deal sair de **GANHO** → NEGOCIANDO/PERDIDO | -100 pts |
+| **Excluir** um deal | Reverte TODOS os pontos acumulados |
 
 > **Nota:** Após estorno, a ação pode ser remarcada e os pontos serão concedidos novamente.
 

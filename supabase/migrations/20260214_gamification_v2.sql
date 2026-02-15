@@ -287,6 +287,42 @@ CREATE INDEX IF NOT EXISTS idx_score_events_ref_type
     WHERE reference_id IS NOT NULL;
 
 -- ============================================================================
+-- 8b. TRIGGER: Mesa DELETE — Reverse ALL points when a deal is deleted
+-- ============================================================================
+CREATE OR REPLACE FUNCTION public.fn_score_mesa_delete()
+RETURNS TRIGGER
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    _total_points integer;
+BEGIN
+    -- Sum all points ever awarded for this deal
+    SELECT COALESCE(SUM(points), 0) INTO _total_points
+    FROM public.score_events
+    WHERE reference_id = OLD.id
+      AND reference_table = 'mesa_negocios';
+
+    -- If there are net positive points, reverse them
+    IF _total_points > 0 THEN
+        INSERT INTO public.score_events (user_id, organization_id, event_type, points, reference_id, reference_table, metadata)
+        VALUES (OLD.responsavel_id, OLD.organization_id, 'deal_deleted', -_total_points, OLD.id, 'mesa_negocios',
+            jsonb_build_object('empresa', OLD.empresa, 'situacao', OLD.situacao::text, 'reversal', true));
+        UPDATE public.user_scores SET total_score = total_score - _total_points, updated_at = now()
+        WHERE user_id = OLD.responsavel_id;
+    END IF;
+
+    RETURN OLD;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_mesa_negocios_delete ON public.mesa_negocios;
+CREATE TRIGGER trg_mesa_negocios_delete
+    BEFORE DELETE ON public.mesa_negocios
+    FOR EACH ROW
+    EXECUTE FUNCTION public.fn_score_mesa_delete();
+
+-- ============================================================================
 -- 9. TRIGGER: Daily Activity V2 — Granular routine scoring
 --    Fonte: GAMIFICATION.md § "Rotina Obrigatória — até 25 pts/dia"
 -- ============================================================================
