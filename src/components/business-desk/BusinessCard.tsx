@@ -6,9 +6,9 @@ import {
   Building2,
   Calendar,
   CheckCircle2,
-  BanknoteIcon,
-  GripVertical,
   User,
+  Star,
+  FileText,
 } from "lucide-react";
 import type { MesaNegocios } from "@/types/social-selling";
 import { format } from "date-fns";
@@ -32,35 +32,17 @@ export interface DealWithRelations extends MesaNegocios {
 interface CardContentProps {
   deal: DealWithRelations;
   onToggleCompareceu?: (dealId: string, current: boolean) => void;
-  onTogglePix?: (dealId: string, current: boolean) => void;
-  showHandle?: boolean;
-  handleProps?: Record<string, any>;
+  onToggleQualificada?: (dealId: string, current: boolean) => void;
+  onToggleProposta?: (dealId: string, current: boolean) => void;
 }
 
 const CardInternals = ({
   deal,
   onToggleCompareceu,
-  onTogglePix,
-  showHandle,
-  handleProps,
+  onToggleQualificada,
+  onToggleProposta,
 }: CardContentProps) => (
   <div className="flex gap-2">
-    {/* Drag handle */}
-    {showHandle && (
-      <button
-        {...handleProps}
-        className={cn(
-          "self-center p-1 rounded-md flex-shrink-0",
-          "opacity-0 group-hover:opacity-100 transition-opacity duration-150",
-          "text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/50",
-          "cursor-grab active:cursor-grabbing touch-none"
-        )}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <GripVertical className="h-3.5 w-3.5" />
-      </button>
-    )}
-
     <div className="flex-1 min-w-0 space-y-2.5">
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
@@ -118,24 +100,47 @@ const CardInternals = ({
               Presente
             </Badge>
           </button>
+
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onTogglePix?.(deal.id, deal.pix_compromisso);
+              onToggleQualificada?.(deal.id, deal.qualificada);
             }}
             className="inline-flex"
+            title="Reunião Qualificada (+40 pts)"
           >
             <Badge
               variant="outline"
               className={cn(
                 "text-[10px] px-1.5 py-0 h-5 cursor-pointer transition-all duration-200",
-                deal.pix_compromisso
-                  ? "bg-primary/10 text-primary border-primary/30"
+                deal.qualificada
+                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
                   : "bg-transparent text-muted-foreground/50 border-border/50 hover:border-border"
               )}
             >
-              <BanknoteIcon className="h-2.5 w-2.5 mr-0.5" />
-              PIX
+              <Star className="h-2.5 w-2.5 mr-0.5" />
+              Fit
+            </Badge>
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleProposta?.(deal.id, deal.proposta_enviada);
+            }}
+            className="inline-flex"
+            title="Proposta Enviada (+60 pts)"
+          >
+            <Badge
+              variant="outline"
+              className={cn(
+                "text-[10px] px-1.5 py-0 h-5 cursor-pointer transition-all duration-200",
+                deal.proposta_enviada
+                  ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30"
+                  : "bg-transparent text-muted-foreground/50 border-border/50 hover:border-border"
+              )}
+            >
+              <FileText className="h-2.5 w-2.5 mr-0.5" />
+              Prop
             </Badge>
           </button>
         </div>
@@ -160,7 +165,7 @@ export const DragOverlayCard = ({ deal }: { deal: DealWithRelations }) => (
     )}
     style={{ zIndex: 9999, width: "100%", maxWidth: 340 }}
   >
-    <CardInternals deal={deal} showHandle={false} />
+    <CardInternals deal={deal} />
   </div>
 );
 
@@ -169,14 +174,16 @@ interface BusinessCardProps {
   deal: DealWithRelations;
   onCardClick: (deal: DealWithRelations) => void;
   onToggleCompareceu: (dealId: string, current: boolean) => void;
-  onTogglePix: (dealId: string, current: boolean) => void;
+  onToggleQualificada?: (dealId: string, current: boolean) => void;
+  onToggleProposta?: (dealId: string, current: boolean) => void;
 }
 
 export const BusinessCard = ({
   deal,
   onCardClick,
   onToggleCompareceu,
-  onTogglePix,
+  onToggleQualificada,
+  onToggleProposta,
 }: BusinessCardProps) => {
   const {
     attributes,
@@ -219,13 +226,14 @@ export const BusinessCard = ({
         "hover:border-primary/20"
       )}
       onClick={() => onCardClick(deal)}
+      {...attributes}
+      {...listeners}
     >
       <CardInternals
         deal={deal}
-        showHandle
-        handleProps={{ ...attributes, ...listeners }}
         onToggleCompareceu={onToggleCompareceu}
-        onTogglePix={onTogglePix}
+        onToggleQualificada={onToggleQualificada}
+        onToggleProposta={onToggleProposta}
       />
     </motion.div>
   );
