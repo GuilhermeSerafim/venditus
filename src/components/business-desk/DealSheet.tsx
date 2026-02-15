@@ -54,6 +54,8 @@ export const DealSheet = ({ deal, open, onOpenChange }: DealSheetProps) => {
   const [valorNegocio, setValorNegocio] = useState("");
   const [situacao, setSituacao] = useState<SituacaoNegocio>("NEGOCIANDO");
   const [compareceu, setCompareceu] = useState(false);
+  const [qualificada, setQualificada] = useState(false);
+  const [propostaEnviada, setPropostaEnviada] = useState(false);
 
   const [motivoPerda, setMotivoPerda] = useState("");
   const [notas, setNotas] = useState("");
@@ -68,6 +70,8 @@ export const DealSheet = ({ deal, open, onOpenChange }: DealSheetProps) => {
       setValorNegocio(String(deal.valor_negocio || ""));
       setSituacao(deal.situacao);
       setCompareceu(deal.compareceu);
+      setQualificada(deal.qualificada);
+      setPropostaEnviada(deal.proposta_enviada);
 
       setMotivoPerda(deal.motivo_perda || "");
       setNotas(deal.notas || "");
@@ -87,6 +91,8 @@ export const DealSheet = ({ deal, open, onOpenChange }: DealSheetProps) => {
         valor_negocio: Number(valorNegocio) || 0,
         situacao,
         compareceu,
+        qualificada,
+        proposta_enviada: propostaEnviada,
 
         motivo_perda: situacao === "PERDIDO" ? motivoPerda || null : null,
         notas: notas || null,
@@ -224,6 +230,20 @@ export const DealSheet = ({ deal, open, onOpenChange }: DealSheetProps) => {
                   <span className="text-xs text-primary ml-1">(+30 pts)</span>
                 </Label>
                 <Switch checked={compareceu} onCheckedChange={setCompareceu} />
+              </div>
+              <div className="flex items-center justify-between py-1">
+                <Label className="text-sm cursor-pointer">
+                  Reunião qualificada (Fit)
+                  <span className="text-xs text-primary ml-1">(+40 pts)</span>
+                </Label>
+                <Switch checked={qualificada} onCheckedChange={setQualificada} />
+              </div>
+              <div className="flex items-center justify-between py-1">
+                <Label className="text-sm cursor-pointer">
+                  Proposta enviada
+                  <span className="text-xs text-primary ml-1">(+60 pts)</span>
+                </Label>
+                <Switch checked={propostaEnviada} onCheckedChange={setPropostaEnviada} />
               </div>
 
             </div>

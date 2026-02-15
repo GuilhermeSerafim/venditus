@@ -41,6 +41,8 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
   const [valorNegocio, setValorNegocio] = useState(String(deal.valor_negocio || ""));
   const [situacao, setSituacao] = useState<SituacaoNegocio>(deal.situacao);
   const [compareceu, setCompareceu] = useState(deal.compareceu);
+  const [qualificada, setQualificada] = useState(deal.qualificada);
+  const [propostaEnviada, setPropostaEnviada] = useState(deal.proposta_enviada);
 
   const [motivoPerda, setMotivoPerda] = useState(deal.motivo_perda || "");
   const [notas, setNotas] = useState(deal.notas || "");
@@ -53,6 +55,8 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
     setValorNegocio(String(deal.valor_negocio || ""));
     setSituacao(deal.situacao);
     setCompareceu(deal.compareceu);
+    setQualificada(deal.qualificada);
+    setPropostaEnviada(deal.proposta_enviada);
 
     setMotivoPerda(deal.motivo_perda || "");
     setNotas(deal.notas || "");
@@ -71,6 +75,8 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
         valor_negocio: Number(valorNegocio) || 0,
         situacao,
         compareceu,
+        qualificada,
+        proposta_enviada: propostaEnviada,
 
         motivo_perda: situacao === "PERDIDO" ? motivoPerda || null : null,
         notas: notas || null,
@@ -176,7 +182,27 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
             />
           </div>
 
+          <div className="flex items-center justify-between">
+            <Label htmlFor="edit-qualificada" className="cursor-pointer">
+              Reunião qualificada / Fit (+40 pts)
+            </Label>
+            <Switch
+              id="edit-qualificada"
+              checked={qualificada}
+              onCheckedChange={setQualificada}
+            />
+          </div>
 
+          <div className="flex items-center justify-between">
+            <Label htmlFor="edit-proposta" className="cursor-pointer">
+              Proposta enviada (+60 pts)
+            </Label>
+            <Switch
+              id="edit-proposta"
+              checked={propostaEnviada}
+              onCheckedChange={setPropostaEnviada}
+            />
+          </div>
 
           <div>
             <Label htmlFor="edit-notas">Observações</Label>
