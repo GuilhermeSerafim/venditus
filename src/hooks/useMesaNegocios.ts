@@ -126,12 +126,31 @@ export const useMesaNegocios = () => {
 
       if (error) throw error;
     },
+    // Optimistic delete — remove card instantly before server confirms
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["mesa_negocios"] });
+      const previousDeals = queryClient.getQueryData(["mesa_negocios"]);
+
+      queryClient.setQueryData(["mesa_negocios"], (old: any[] | undefined) => {
+        if (!old) return old;
+        return old.filter((deal: any) => deal.id !== id);
+      });
+
+      return { previousDeals };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["mesa_negocios"] });
       toast({ title: "Excluído", description: "Negócio removido." });
     },
-    onError: (error: any) => {
+    onError: (error: any, _id, context) => {
+      // Rollback optimistic delete on error
+      if (context?.previousDeals) {
+        queryClient.setQueryData(["mesa_negocios"], context.previousDeals);
+      }
       toast({ title: "Erro", description: error.message, variant: "destructive" });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["mesa_negocios"] });
+      queryClient.invalidateQueries({ queryKey: ["user_scores"] });
     },
   });
 
