@@ -41,7 +41,7 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
   const [valorNegocio, setValorNegocio] = useState(String(deal.valor_negocio || ""));
   const [situacao, setSituacao] = useState<SituacaoNegocio>(deal.situacao);
   const [compareceu, setCompareceu] = useState(deal.compareceu);
-  const [pixCompromisso, setPixCompromisso] = useState(deal.pix_compromisso);
+
   const [motivoPerda, setMotivoPerda] = useState(deal.motivo_perda || "");
   const [notas, setNotas] = useState(deal.notas || "");
   const [responsavelId, setResponsavelId] = useState(deal.responsavel_id);
@@ -53,7 +53,7 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
     setValorNegocio(String(deal.valor_negocio || ""));
     setSituacao(deal.situacao);
     setCompareceu(deal.compareceu);
-    setPixCompromisso(deal.pix_compromisso);
+
     setMotivoPerda(deal.motivo_perda || "");
     setNotas(deal.notas || "");
     setResponsavelId(deal.responsavel_id);
@@ -71,7 +71,7 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
         valor_negocio: Number(valorNegocio) || 0,
         situacao,
         compareceu,
-        pix_compromisso: pixCompromisso,
+
         motivo_perda: situacao === "PERDIDO" ? motivoPerda || null : null,
         notas: notas || null,
         responsavel_id: responsavelId,
@@ -176,16 +176,7 @@ export const EditDealDialog = ({ deal, open, onOpenChange }: EditDealDialogProps
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="edit-pix" className="cursor-pointer">
-              PIX Compromisso
-            </Label>
-            <Switch
-              id="edit-pix"
-              checked={pixCompromisso}
-              onCheckedChange={setPixCompromisso}
-            />
-          </div>
+
 
           <div>
             <Label htmlFor="edit-notas">Observações</Label>

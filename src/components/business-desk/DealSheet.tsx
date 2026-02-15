@@ -54,7 +54,7 @@ export const DealSheet = ({ deal, open, onOpenChange }: DealSheetProps) => {
   const [valorNegocio, setValorNegocio] = useState("");
   const [situacao, setSituacao] = useState<SituacaoNegocio>("NEGOCIANDO");
   const [compareceu, setCompareceu] = useState(false);
-  const [pixCompromisso, setPixCompromisso] = useState(false);
+
   const [motivoPerda, setMotivoPerda] = useState("");
   const [notas, setNotas] = useState("");
   const [responsavelId, setResponsavelId] = useState("");
@@ -68,7 +68,7 @@ export const DealSheet = ({ deal, open, onOpenChange }: DealSheetProps) => {
       setValorNegocio(String(deal.valor_negocio || ""));
       setSituacao(deal.situacao);
       setCompareceu(deal.compareceu);
-      setPixCompromisso(deal.pix_compromisso);
+
       setMotivoPerda(deal.motivo_perda || "");
       setNotas(deal.notas || "");
       setResponsavelId(deal.responsavel_id);
@@ -87,7 +87,7 @@ export const DealSheet = ({ deal, open, onOpenChange }: DealSheetProps) => {
         valor_negocio: Number(valorNegocio) || 0,
         situacao,
         compareceu,
-        pix_compromisso: pixCompromisso,
+
         motivo_perda: situacao === "PERDIDO" ? motivoPerda || null : null,
         notas: notas || null,
         responsavel_id: responsavelId,
@@ -225,10 +225,7 @@ export const DealSheet = ({ deal, open, onOpenChange }: DealSheetProps) => {
                 </Label>
                 <Switch checked={compareceu} onCheckedChange={setCompareceu} />
               </div>
-              <div className="flex items-center justify-between py-1">
-                <Label className="text-sm cursor-pointer">PIX Compromisso</Label>
-                <Switch checked={pixCompromisso} onCheckedChange={setPixCompromisso} />
-              </div>
+
             </div>
 
             <Separator className="my-2" />
