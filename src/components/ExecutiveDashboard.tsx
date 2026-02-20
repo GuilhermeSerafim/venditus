@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardMetricCard } from "./DashboardMetricCard";
@@ -25,12 +25,21 @@ import {
 } from "@tremor/react";
 import { format, startOfMonth, endOfMonth, eachMonthOfInterval, subMonths, isWithinInterval, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { AppRole, ROLE_LABELS } from "@/hooks/useRoles";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const ExecutiveDashboard = () => {
   const [dateRange, setDateRange] = useState<DateRangePickerValue>({
     from: startOfMonth(new Date()),
     to: new Date(),
   });
+  const [selectedRole, setSelectedRole] = useState<AppRole | "all">("all");
 
   // Fetch all data
   const { data: leads } = useQuery({
@@ -60,6 +69,17 @@ export const ExecutiveDashboard = () => {
     },
   });
 
+  const { data: userRoles = [] } = useQuery({
+    queryKey: ["all-user-roles"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("*");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   // Filter Logic
   const filterByDate = (dateStr: string) => {
     if (!dateRange.from || !dateRange.to) return true;
@@ -70,9 +90,21 @@ export const ExecutiveDashboard = () => {
     });
   };
 
-  const filteredLeads = leads?.filter(l => filterByDate(l.created_at)) || [];
-  const filteredSales = sales?.filter(s => filterByDate(s.sale_date)) || [];
-  const filteredRevenues = revenues?.filter(r => filterByDate(r.revenue_date)) || [];
+  const allowedUserIds = useMemo(() => {
+    if (selectedRole === "all") return null;
+    return userRoles
+      .filter((ur) => ur.role === selectedRole)
+      .map((ur) => ur.user_id);
+  }, [selectedRole, userRoles]);
+
+  const filterByRole = (itemUserId: string) => {
+    if (!allowedUserIds) return true;
+    return allowedUserIds.includes(itemUserId);
+  };
+
+  const filteredLeads = leads?.filter(l => filterByDate(l.created_at) && filterByRole(l.user_id)) || [];
+  const filteredSales = sales?.filter(s => filterByDate(s.sale_date) && filterByRole(s.user_id)) || [];
+  const filteredRevenues = revenues?.filter(r => filterByDate(r.revenue_date) && filterByRole(r.user_id)) || [];
 
   // Calculate main metrics (Filtered)
   const totalLeads = filteredLeads.length;
@@ -110,12 +142,12 @@ export const ExecutiveDashboard = () => {
     // Using global sales/revenues for the trend chart to ensure context
     const salesInMonth = sales?.filter(sale => {
       const saleDate = new Date(sale.sale_date);
-      return saleDate >= monthStart && saleDate <= monthEnd;
+      return saleDate >= monthStart && saleDate <= monthEnd && filterByRole(sale.user_id);
     }) || [];
 
     const revenuesInMonth = revenues?.filter(rev => {
       const revDate = new Date(rev.revenue_date);
-      return revDate >= monthStart && revDate <= monthEnd;
+      return revDate >= monthStart && revDate <= monthEnd && filterByRole(rev.user_id);
     }) || [];
 
     const netRevenue = salesInMonth.reduce((sum, sale) => sum + Number(sale.net_value), 0);
@@ -131,7 +163,7 @@ export const ExecutiveDashboard = () => {
   const monthlyGoal = 50000; // Static Goal for now
   const currentMonthSales = sales?.filter(s => {
     const date = new Date(s.sale_date);
-    return date >= startOfMonth(new Date()) && date <= endOfMonth(new Date());
+    return date >= startOfMonth(new Date()) && date <= endOfMonth(new Date()) && filterByRole(s.user_id);
   }) || [];
   const currentMonthRevenue = currentMonthSales.reduce((sum, s) => sum + Number(s.sold_value), 0);
   const goalProgress = Math.min((currentMonthRevenue / monthlyGoal) * 100, 100);
@@ -151,7 +183,7 @@ export const ExecutiveDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Filter only - Title removed to avoid duplication */}
-      <div className="flex flex-col sm:flex-row justify-start items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="w-full sm:w-auto relative">
           <DateRangePicker 
             className="w-full max-w-sm sm:max-w-xs"
@@ -161,6 +193,24 @@ export const ExecutiveDashboard = () => {
             color="yellow"
             locale={ptBR}
           />
+        </div>
+        <div className="w-full sm:w-[200px]">
+          <Select
+            value={selectedRole}
+            onValueChange={(value) => setSelectedRole(value as AppRole | "all")}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Filtrar por função" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as funções</SelectItem>
+              {Object.entries(ROLE_LABELS).map(([key, label]) => (
+                <SelectItem key={key} value={key}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
