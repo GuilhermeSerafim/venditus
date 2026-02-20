@@ -2,17 +2,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
-export type AppRole = "admin" | "comercial" | "financeiro" | "marketing" | "somente_leitura";
+export type AppRole = "admin" | "comercial" | "financeiro" | "auditor";
 
 export const ROLE_LABELS: Record<AppRole, string> = {
   admin: "Admin",
   comercial: "Comercial",
   financeiro: "Financeiro",
-  marketing: "Marketing",
-  somente_leitura: "Somente Leitura",
+  auditor: "Auditor",
 };
 
-export const ALL_ROLES: AppRole[] = ["admin", "comercial", "financeiro", "marketing", "somente_leitura"];
+export const ALL_ROLES: AppRole[] = ["admin", "comercial", "financeiro", "auditor"];
 
 interface UserRole {
   role: AppRole;
@@ -51,22 +50,22 @@ export const useRoles = () => {
 
   const isAdmin = hasRole("admin");
 
-  // Menu permissions - somente_leitura can view all menus, marketing can view leads/events/products
-  const canAccessLeads = isAdmin || hasAnyRole(["comercial", "marketing", "somente_leitura"]);
-  const canAccessSales = isAdmin || hasAnyRole(["comercial", "financeiro", "somente_leitura"]);
-  const canAccessCashFlow = isAdmin || hasAnyRole(["financeiro", "somente_leitura"]);
-  const canAccessEvents = isAdmin || hasAnyRole(["comercial", "marketing", "somente_leitura"]);
-  const canAccessProducts = isAdmin || hasAnyRole(["comercial", "marketing", "somente_leitura"]);
-  const canAccessExport = isAdmin || hasAnyRole(["financeiro", "somente_leitura"]);
+  // Menu permissions
+  const canAccessLeads = isAdmin || hasRole("comercial");
+  const canAccessSales = isAdmin || hasAnyRole(["comercial", "financeiro"]);
+  const canAccessCashFlow = isAdmin || hasRole("financeiro");
+  const canAccessEvents = isAdmin || hasRole("comercial");
+  const canAccessProducts = isAdmin || hasRole("comercial");
+  const canAccessExport = isAdmin || hasRole("financeiro");
   const canAccessUserManagement = isAdmin;
-  const canAccessBusinessDesk = isAdmin || hasRole("comercial");
+  const canAccessBusinessDesk = isAdmin || hasAnyRole(["comercial", "financeiro"]);
   
-  // Edit permissions (marketing has no edit permissions)
-  const canEditLeads = isAdmin || hasAnyRole(["comercial"]);
-  const canEditSales = isAdmin || hasAnyRole(["comercial", "financeiro"]);
-  const canEditCashFlow = isAdmin || hasAnyRole(["financeiro"]);
-  const canEditEvents = isAdmin || hasAnyRole(["comercial"]);
-  const canEditProducts = isAdmin || hasAnyRole(["comercial"]);
+  // Edit permissions
+  const canEditLeads = isAdmin || hasRole("comercial");
+  const canEditSales = isAdmin || hasRole("comercial");
+  const canEditCashFlow = isAdmin || hasRole("financeiro");
+  const canEditEvents = isAdmin || hasRole("comercial");
+  const canEditProducts = isAdmin || hasRole("comercial");
 
   return {
     roles: userRoles,

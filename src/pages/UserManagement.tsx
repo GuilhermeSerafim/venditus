@@ -298,31 +298,25 @@ const UserManagement = () => {
             <div className="p-4 rounded-lg bg-muted/50">
               <h4 className="font-semibold text-gold mb-2">Admin</h4>
               <p className="text-sm text-muted-foreground">
-                Acesso completo a todos os módulos: Leads, Vendas, Eventos, Produtos, Caixa, Exportar e Gestão de Usuários
+                Controle total dos módulos, configurações estratégicas (white-label, usuários, regras de pontuação).
               </p>
             </div>
             <div className="p-4 rounded-lg bg-muted/50">
               <h4 className="font-semibold text-gold mb-2">Comercial</h4>
               <p className="text-sm text-muted-foreground">
-                Acesso a: Leads, Vendas, Eventos e Produtos (com permissão de edição)
+                Opera leads, vendas, interações e eventos. Acompanha ranking/pontuação de gamificação.
               </p>
             </div>
             <div className="p-4 rounded-lg bg-muted/50">
               <h4 className="font-semibold text-gold mb-2">Financeiro</h4>
               <p className="text-sm text-muted-foreground">
-                Acesso a: Vendas, Caixa e Exportar (com permissão de edição)
+                Acesso forte ao fluxo de caixa e validação de receita. Visualiza mesa de negócios para conferência, sem editar.
               </p>
             </div>
             <div className="p-4 rounded-lg bg-muted/50">
-              <h4 className="font-semibold text-gold mb-2">Marketing</h4>
+              <h4 className="font-semibold text-gold mb-2">Auditor</h4>
               <p className="text-sm text-muted-foreground">
-                Acesso de visualização a: Leads, Eventos e Produtos. Sem permissão de edição.
-              </p>
-            </div>
-            <div className="p-4 rounded-lg bg-muted/50">
-              <h4 className="font-semibold text-gold mb-2">Somente Leitura</h4>
-              <p className="text-sm text-muted-foreground">
-                Visualização apenas, sem permissão de edição em nenhum módulo
+                Somente leitura de dashboards/KPIs. Sem acesso a detalhes sensíveis de negociações.
               </p>
             </div>
           </div>
